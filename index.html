@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car App - Figma Build</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen homepage redesigned-screen homepage--scrollable">
+      <div class="homepage-scroll-stack">
+        <header class="home-header">
+          <p>Welcome, User!</p>
+          <a class="home-menu-link" href="settings.html" aria-label="Open settings">
+            <span class="home-menu-hamburger" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </a>
+        </header>
+
+        <div class="home-car-wrap">
+          <img
+            class="home-car-image"
+            src="https://www.figma.com/api/mcp/asset/5c8b7488-1a5c-4708-8e2f-e10c5c345143"
+            alt="Car preview"
+          />
+        </div>
+
+        <nav class="home-quick-actions" aria-label="Quick actions">
+          <a class="home-action-tile" href="page2.html" aria-label="Map">
+            <img src="https://www.figma.com/api/mcp/asset/16cd1a29-7dd0-4606-a7cc-fca22b0c748e" alt="" />
+          </a>
+          <a class="home-action-tile" href="page3.html" aria-label="Parts and fluids">
+            <img class="home-action-motor" src="https://www.figma.com/api/mcp/asset/cc2dfe34-7e68-4ec8-87e3-7ea72fe692cb" alt="" />
+          </a>
+          <span class="home-action-tile home-action-tile--empty" aria-hidden="true"></span>
+          <a class="home-action-tile" href="settings.html" aria-label="Settings">
+            <img src="https://www.figma.com/api/mcp/asset/099237fd-064b-41ef-bbf4-86b2c9a87182" alt="" />
+          </a>
+        </nav>
+
+        <section class="reminders-card" aria-label="Reminders">
+          <div class="reminders-top-row">
+            <h1>Reminders</h1>
+            <img class="reminders-plus-icon" src="https://www.figma.com/api/mcp/asset/2bbd45d5-b6ef-44da-99c2-91c13ca68fac" alt="" />
+          </div>
+
+          <article class="reminder-item">
+            <button class="reminder-dot" type="button" aria-label="Mark Oil and Filter Change as done" aria-pressed="false"></button>
+            <img src="https://www.figma.com/api/mcp/asset/3228db13-dfc7-40d0-840a-35bf5712f363" alt="" />
+            <span>Oil and Filter Change</span>
+          </article>
+          <article class="reminder-item">
+            <button class="reminder-dot" type="button" aria-label="Mark Battery Check as done" aria-pressed="false"></button>
+            <img src="https://www.figma.com/api/mcp/asset/f82f53fd-ba34-4827-bd25-3ec8b8804839" alt="" />
+            <span>Battery Check</span>
+          </article>
+          <article class="reminder-item">
+            <button class="reminder-dot" type="button" aria-label="Mark Tire Rotation as done" aria-pressed="false"></button>
+            <img src="https://www.figma.com/api/mcp/asset/2ec649fa-ee5d-4d2e-b626-f9cb6a9c03a6" alt="" />
+            <span>Tire Rotation</span>
+          </article>
+        </section>
+
+        <section class="services-card" aria-label="Recommended services by mileage">
+          <div class="reminders-top-row">
+            <h1 class="services-card-title">Recommended Services By Mileage</h1>
+            <img class="reminders-plus-icon" src="https://www.figma.com/api/mcp/asset/2bbd45d5-b6ef-44da-99c2-91c13ca68fac" alt="" />
+          </div>
+
+          <article class="reminder-item">
+            <button class="reminder-dot" type="button" aria-label="Mark Oil and Filter Change as done" aria-pressed="false"></button>
+            <img src="https://www.figma.com/api/mcp/asset/3228db13-dfc7-40d0-840a-35bf5712f363" alt="" />
+            <span>Oil and Filter Change</span>
+          </article>
+          <article class="reminder-item">
+            <button class="reminder-dot" type="button" aria-label="Mark Battery Check as done" aria-pressed="false"></button>
+            <img src="https://www.figma.com/api/mcp/asset/f82f53fd-ba34-4827-bd25-3ec8b8804839" alt="" />
+            <span>Battery Check</span>
+          </article>
+          <article class="reminder-item">
+            <button class="reminder-dot" type="button" aria-label="Mark Tire Rotation as done" aria-pressed="false"></button>
+            <img src="https://www.figma.com/api/mcp/asset/2ec649fa-ee5d-4d2e-b626-f9cb6a9c03a6" alt="" />
+            <span>Tire Rotation</span>
+          </article>
+        </section>
+      </div>
+    </main>
+    <script src="page-transitions.js"></script>
+    <script>
+      document.querySelectorAll(".reminder-dot").forEach((dot) => {
+        dot.addEventListener("click", () => {
+          const isComplete = dot.getAttribute("aria-pressed") === "true";
+          dot.setAttribute("aria-pressed", String(!isComplete));
+          dot.classList.toggle("is-complete", !isComplete);
+        });
+      });
+    </script>
+  </body>
+</html>
