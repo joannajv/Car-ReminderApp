@@ -1,7 +1,7 @@
 (() => {
   const TRANSITION_KEY = "car-demo-page-transition-direction";
-  const EXIT_DURATION_MS = 260;
-  const ENTER_CLEANUP_MS = 300;
+  const EXIT_DURATION_MS = 380;
+  const ENTER_CLEANUP_MS = 420;
 
   const isInternalNavigableLink = (anchor) => {
     if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return false;
@@ -29,9 +29,28 @@
     sessionStorage.removeItem(TRANSITION_KEY);
     document.body.classList.add(`page-enter-${direction}`);
 
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        document.body.classList.add("page-enter-active");
+      });
+    });
+
     window.setTimeout(() => {
-      document.body.classList.remove("page-enter-forward", "page-enter-back");
+      document.body.classList.remove("page-enter-forward", "page-enter-back", "page-enter-active");
     }, ENTER_CLEANUP_MS);
+  };
+
+  const ensureMotionLayer = () => {
+    const screen = document.querySelector(".screen");
+    if (!screen) return;
+    if (screen.firstElementChild && screen.firstElementChild.classList.contains("screen-motion-layer")) return;
+
+    const layer = document.createElement("div");
+    layer.className = "screen-motion-layer";
+    while (screen.firstChild) {
+      layer.appendChild(screen.firstChild);
+    }
+    screen.appendChild(layer);
   };
 
   const navigateWithExit = (anchor, direction) => {
@@ -43,6 +62,7 @@
   };
 
   document.addEventListener("DOMContentLoaded", () => {
+    ensureMotionLayer();
     runEnterAnimation();
 
     document.addEventListener("click", (event) => {
