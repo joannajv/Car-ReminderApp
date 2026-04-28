@@ -8,53 +8,172 @@
   </head>
   <body>
     <main class="screen fig-sheet-screen redesigned-screen">
-      <section class="fig-sheet fig-sheet--recent">
+      <section class="fig-sheet fig-sheet--recent fig-sheet--dynamic-reminders">
         <div class="fig-sheet-head">
           <h1>Recent</h1>
           <a class="fig-sheet-close" href="index.html" aria-label="Close">×</a>
         </div>
-
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="service-recent-text">Example Service</span>
-        </div>
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="service-recent-text">Example Service</span>
-        </div>
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="service-recent-text">Example Service</span>
-        </div>
+        <p id="servicesLoading" class="fig-loading">Loading services...</p>
+        <div id="servicesRecentList" class="fig-reminders-list"></div>
+        <p id="servicesRecentEmpty" class="fig-reminders-empty" style="display:none;">No services yet. Tap + to add one.</p>
       </section>
 
-      <section class="fig-sheet fig-sheet--past">
+      <section class="fig-sheet fig-sheet--past fig-sheet--dynamic-reminders">
         <div class="fig-sheet-head">
           <h1>Past</h1>
           <a class="fig-sheet-close" href="index.html" aria-label="Close">×</a>
         </div>
-
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="service-past-text">Example Service</span>
-        </div>
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="service-past-text">Example Service</span>
-        </div>
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="service-past-text">Example Service</span>
-        </div>
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="service-past-text">Example Service</span>
-        </div>
+        <div id="servicesPastList" class="fig-reminders-list"></div>
+        <p id="servicesPastEmpty" class="fig-reminders-empty" style="display:none;">No past services yet.</p>
       </section>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="auth-guard.js"></script>
+    <script>
+      const servicesRecentList = document.getElementById("servicesRecentList");
+      const servicesPastList = document.getElementById("servicesPastList");
+      const servicesRecentEmpty = document.getElementById("servicesRecentEmpty");
+      const servicesPastEmpty = document.getElementById("servicesPastEmpty");
+      const servicesLoading = document.getElementById("servicesLoading");
+
+      const makeServiceRow = (entry) => {
+        const row = document.createElement("div");
+        row.className = "fig-service-pill fig-reminder-row";
+
+        const dot = document.createElement("button");
+        dot.className = "fig-service-dot fig-service-dot-btn";
+        dot.type = "button";
+        dot.setAttribute("aria-label", `Mark ${entry.text} as completed`);
+        dot.setAttribute("aria-pressed", String(Boolean(entry.completed)));
+        dot.classList.toggle("is-complete", Boolean(entry.completed));
+        dot.addEventListener("click", async (event) => {
+          event.stopPropagation();
+          const isComplete = dot.getAttribute("aria-pressed") === "true";
+          const next = !isComplete;
+          dot.setAttribute("aria-pressed", String(next));
+          dot.classList.toggle("is-complete", next);
+
+          try {
+            if (!window.carDemoSupabase) return;
+            const { error } = await window.carDemoSupabase
+              .from("services_done")
+              .update({ completed: next })
+              .eq("id", entry.id)
+              .eq("user_id", entry.user_id);
+
+            if (error) {
+              dot.setAttribute("aria-pressed", String(isComplete));
+              dot.classList.toggle("is-complete", isComplete);
+              window.carDemoToast?.(`Could not update: ${error.message}`, { isError: true, durationMs: 2200 });
+            }
+          } catch (e) {
+            dot.setAttribute("aria-pressed", String(isComplete));
+            dot.classList.toggle("is-complete", isComplete);
+            window.carDemoToast?.("Could not update completed state.", { isError: true, durationMs: 2200 });
+          }
+        });
+
+        const text = document.createElement("span");
+        text.className = "fig-reminder-row-text";
+        const createdLabel = window.carDemoFormatTimestamp?.(entry.created_at);
+        text.textContent = createdLabel ? `${entry.text} — ${createdLabel}` : entry.text;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "fig-reminder-delete";
+        removeBtn.type = "button";
+        removeBtn.textContent = "Delete";
+        removeBtn.setAttribute("aria-label", `Delete service ${entry.text}`);
+        removeBtn.dataset.serviceId = entry.id;
+
+        row.appendChild(dot);
+        row.appendChild(text);
+        row.appendChild(removeBtn);
+        return row;
+      };
+
+      const renderSection = (targetList, targetEmpty, items) => {
+        targetList.innerHTML = "";
+        if (!items.length) {
+          targetEmpty.style.display = "block";
+          return;
+        }
+        targetEmpty.style.display = "none";
+        items.forEach((entry) => targetList.appendChild(makeServiceRow(entry)));
+      };
+
+      (async () => {
+        if (!window.carDemoSupabase || !servicesRecentList || !servicesPastList || !servicesLoading) return;
+        const session = await window.getCarDemoSession();
+        if (!session) return;
+
+        let data = null;
+        let error = null;
+
+        ({ data, error } = await window.carDemoSupabase
+          .from("services_done")
+          .select("id,user_id,text,date_text,time_text,created_at,completed")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false }));
+
+        if (error && String(error.message || "").toLowerCase().includes("completed")) {
+          ({ data, error } = await window.carDemoSupabase
+            .from("services_done")
+            .select("id,user_id,text,date_text,time_text,created_at")
+            .eq("user_id", session.user.id)
+            .order("created_at", { ascending: false }));
+          if (data) data = data.map((row) => ({ ...row, completed: false }));
+        }
+
+        servicesLoading.style.display = "none";
+
+        if (error) {
+          window.carDemoToast?.(`Could not load services: ${error.message}`, { isError: true, durationMs: 2200 });
+          servicesRecentEmpty.textContent = "Could not load services. Please refresh.";
+          servicesRecentEmpty.style.display = "block";
+          servicesPastEmpty.style.display = "none";
+          return;
+        }
+
+        if (!data || !data.length) {
+          servicesRecentEmpty.style.display = "block";
+          servicesPastEmpty.style.display = "block";
+          return;
+        }
+
+        const recentItems = data.slice(0, 3);
+        const pastItems = data.slice(3);
+        renderSection(servicesRecentList, servicesRecentEmpty, recentItems);
+        renderSection(servicesPastList, servicesPastEmpty, pastItems);
+
+        const deleteHandler = async (event) => {
+          const deleteBtn = event.target.closest(".fig-reminder-delete");
+          if (!deleteBtn) return;
+          const serviceId = deleteBtn.dataset.serviceId;
+          if (!serviceId) return;
+
+          const ok = await window.carDemoConfirm?.("Delete this service?");
+          if (!ok) return;
+
+          const { error: deleteError } = await window.carDemoSupabase
+            .from("services_done")
+            .delete()
+            .eq("id", serviceId)
+            .eq("user_id", session.user.id);
+
+          if (deleteError) return;
+
+          const row = deleteBtn.closest(".fig-reminder-row");
+          if (row) row.remove();
+
+          if (!servicesRecentList.children.length) servicesRecentEmpty.style.display = "block";
+          if (!servicesPastList.children.length) servicesPastEmpty.style.display = "block";
+        };
+
+        servicesRecentList.addEventListener("click", deleteHandler);
+        servicesPastList.addEventListener("click", deleteHandler);
+      })();
+    </script>
     <script src="page-transitions.js"></script>
   </body>
 </html>

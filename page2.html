@@ -5,20 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Car App - Map</title>
     <link rel="stylesheet" href="styles.css" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.css" rel="stylesheet" />
   </head>
   <body>
     <main class="screen map redesigned-screen">
       <a class="top-icon-button map-back-button" href="index.html" aria-label="Back to homepage">
-        <img src="https://www.figma.com/api/mcp/asset/640f94a2-3914-4e52-8985-2677a0c18f66" alt="" />
+        <img src="assets/arrowbox.png?v=20260428" alt="" />
       </a>
-      <div class="map-stage" aria-hidden="true">
+      <div class="map-stage">
         <img
           class="map-bg-image"
-          src="https://www.figma.com/api/mcp/asset/7494d72e-f8d6-48a2-ab55-05a27c3c4d57"
-          alt=""
+          src="https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/-83.9298,35.9545,13,0/430x932?access_token=pk.eyJ1IjoianZpbGxhdG8iLCJhIjoiY21vaWFpb3FnMDBnYzJycHcybWN3dWp1YyJ9.Lf5CGJCMtmavOUjzhMwXdw"
+          alt="Street map"
         />
+        <div id="mapbox-map" class="mapbox-map" aria-label="Map"></div>
       </div>
-      <aside class="mechanic-sheet" aria-label="Mechanic details">
+      <aside class="mechanic-sheet" id="mechanicSheet" aria-label="Mechanic details">
         <img
           class="mechanic-sheet-photo"
           src="https://www.figma.com/api/mcp/asset/8e3a2042-5384-4c64-bd5e-935c0a2590fd"
@@ -30,17 +32,150 @@
           alt=""
         />
         <div class="mechanic-sheet-copy">
-          <p class="mechanic-sheet-heading">Mechanic Info</p>
-          <p>Number</p>
-          <p>Address</p>
-          <p>Rating</p>
-          <p>$$$</p>
+          <p class="mechanic-sheet-heading" id="mechanicName">Harvest Auto Center &amp; Express Lube</p>
+          <a id="mechanicPhone" class="mechanic-phone-link" href="tel:8655222425">(865) 522-2425</a>
+          <p id="mechanicAddress">2221 Cumberland Ave, Knoxville, TN 37916</p>
+          <p id="mechanicRating">Rating: 4.6</p>
+          <p id="mechanicPrice">$$</p>
         </div>
       </aside>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.2.0/mapbox-gl.js"></script>
     <script src="supabase-config.js"></script>
     <script src="auth-guard.js"></script>
     <script src="page-transitions.js"></script>
+    <script>
+      const mapElement = document.getElementById("mapbox-map");
+      const mechanicSheet = document.getElementById("mechanicSheet");
+      const mechanicName = document.getElementById("mechanicName");
+      const mechanicPhone = document.getElementById("mechanicPhone");
+      const mechanicAddress = document.getElementById("mechanicAddress");
+      const mechanicRating = document.getElementById("mechanicRating");
+      const mechanicPrice = document.getElementById("mechanicPrice");
+      const utkCenter = [-83.9298, 35.9545];
+      const shops = [
+        {
+          name: "Harvest Auto Center & Express Lube",
+          address: "2221 Cumberland Ave, Knoxville, TN 37916",
+          phone: "(865) 522-2425",
+          rating: "4.6",
+          price: "$"
+        },
+        {
+          name: "RT Clapp Automotive",
+          address: "2045 E Magnolia Ave, Knoxville, TN 37917",
+          phone: "(865) 525-8246",
+          rating: "4.5",
+          price: "$$$"
+        },
+        {
+          name: "CAR FIX Western Ave",
+          address: "4724 Western Ave, Knoxville, TN 37921",
+          phone: "(865) 247-5033",
+          rating: "4.4",
+          price: "$$"
+        },
+        {
+          name: "All Terrain Auto Care",
+          address: "2335 Piney Grove Church Rd, Knoxville, TN 37909",
+          phone: "(865) 337-8217",
+          rating: "4.8",
+          price: "$$$$"
+        },
+        {
+          name: "Service Street Tire & Auto Repair",
+          address: "9133 Executive Park Dr, Knoxville, TN 37923",
+          phone: "(865) 444-3249",
+          rating: "4.7",
+          price: "$"
+        },
+        {
+          name: "Christian Brothers Automotive",
+          address: "10406 Kingston Pike, Knoxville, TN 37922",
+          phone: "(865) 409-2345",
+          rating: "4.8",
+          price: "$$$"
+        },
+        {
+          name: "AutoXtend",
+          address: "1309 E Beaver Creek Dr, Knoxville, TN 37918",
+          phone: "(865) 688-5278",
+          rating: "4.7",
+          price: "$$$"
+        },
+        {
+          name: "Fountain City Auto Clinic",
+          address: "2823 Woodrow Dr, Knoxville, TN 37918",
+          phone: "(865) 688-2528",
+          rating: "4.5",
+          price: "$"
+        },
+        {
+          name: "Precision Tune Auto Care",
+          address: "5715 Kingston Pike, Knoxville, TN 37919",
+          phone: "(865) 584-8181",
+          rating: "4.4",
+          price: "$$$"
+        }
+      ];
+
+      function setMechanicCard(shop) {
+        mechanicName.textContent = shop.name;
+        mechanicPhone.textContent = shop.phone;
+        mechanicPhone.href = `tel:${shop.phone.replace(/\D/g, "")}`;
+        mechanicAddress.textContent = shop.address;
+        mechanicRating.textContent = `Rating: ${shop.rating}`;
+        mechanicPrice.textContent = shop.price;
+        mechanicSheet.classList.add("is-open");
+      }
+
+      if (window.mapboxgl && mapElement) {
+        mapboxgl.accessToken = "pk.eyJ1IjoianZpbGxhdG8iLCJhIjoiY21vaWFpb3FnMDBnYzJycHcybWN3dWp1YyJ9.Lf5CGJCMtmavOUjzhMwXdw";
+
+        const map = new mapboxgl.Map({
+          container: "mapbox-map",
+          style: "mapbox://styles/mapbox/streets-v12",
+          center: utkCenter,
+          zoom: 12.5
+        });
+
+        map.on("load", () => {
+          mapElement.classList.add("is-ready");
+          map.resize();
+        });
+
+        shops.forEach(async (shop) => {
+          const searchText = encodeURIComponent(`${shop.name}, ${shop.address}`);
+
+          try {
+            const response = await fetch(
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchText}.json?limit=1&proximity=${utkCenter[0]},${utkCenter[1]}&access_token=${mapboxgl.accessToken}`
+            );
+            const data = await response.json();
+            const feature = data.features && data.features[0];
+
+            if (!feature) {
+              return;
+            }
+
+            const marker = new mapboxgl.Marker({ color: "#3b82f6" })
+              .setLngLat(feature.center)
+              .addTo(map);
+
+            marker.getElement().addEventListener("click", (event) => {
+              event.stopPropagation();
+              setMechanicCard(shop);
+            });
+          } catch (error) {
+            console.error("Unable to load shop pin", shop.name, error);
+          }
+        });
+
+        map.on("click", () => {
+          mechanicSheet.classList.remove("is-open");
+        });
+      }
+    </script>
   </body>
 </html>

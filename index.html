@@ -49,15 +49,15 @@
           <a class="home-action-tile" href="page3.html" aria-label="Parts and fluids">
             <img class="home-action-motor" src="https://www.figma.com/api/mcp/asset/cc2dfe34-7e68-4ec8-87e3-7ea72fe692cb" alt="" />
           </a>
-          <span class="home-action-tile home-action-tile--empty" aria-hidden="true">
+          <a class="home-action-tile" href="video.html" aria-label="Open videos">
             <img src="assets/playvideo.png?v=20260428" alt="" />
-          </span>
-          <a class="home-action-tile" href="settings.html" aria-label="Settings">
-            <img src="assets/settings.png?v=20260428" alt="" />
+          </a>
+          <a class="home-action-tile" href="notepad-2.html" aria-label="Open notepad">
+            <img src="assets/pad.png?v=20260428" alt="" />
           </a>
         </nav>
 
-        <section class="reminders-card" aria-label="Reminders">
+        <section class="reminders-card" id="homeRemindersCard" aria-label="Reminders" role="link" tabindex="0">
           <div class="reminders-top-row">
             <h1>Reminders</h1>
             <a class="reminders-plus-link" href="reminders.html" aria-label="Open reminders">
@@ -67,22 +67,22 @@
 
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Oil and Filter Change as done" aria-pressed="false"></button>
-            <img src="https://www.figma.com/api/mcp/asset/3228db13-dfc7-40d0-840a-35bf5712f363" alt="" />
-            <span>Oil and Filter Change</span>
+            <img class="home-oil-icon" src="assets/oil.png?v=20260428" alt="" />
+            <span class="home-reminder-text">Oil and Filter Change</span>
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Battery Check as done" aria-pressed="false"></button>
             <img src="assets/battery.png?v=20260428" alt="" />
-            <span>Battery Check</span>
+            <span class="home-reminder-text">Battery Check</span>
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Tire Rotation as done" aria-pressed="false"></button>
             <img src="assets/warn.png?v=20260428" alt="" />
-            <span>Tire Rotation</span>
+            <span class="home-reminder-text">Tire Rotation</span>
           </article>
         </section>
 
-        <section class="services-card" aria-label="Services done">
+        <section class="services-card" id="homeServicesCard" aria-label="Services done" role="link" tabindex="0">
           <div class="reminders-top-row">
             <h1 class="services-card-title">Services Done</h1>
             <a class="reminders-plus-link" href="notepad.html" aria-label="Open notepad">
@@ -92,18 +92,18 @@
 
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Oil and Filter Change as done" aria-pressed="false"></button>
-            <img src="https://www.figma.com/api/mcp/asset/3228db13-dfc7-40d0-840a-35bf5712f363" alt="" />
-            <span>Oil and Filter Change</span>
+            <img class="home-oil-icon" src="assets/oil.png?v=20260428" alt="" />
+            <span class="home-service-text">Oil and Filter Change</span>
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Battery Check as done" aria-pressed="false"></button>
             <img src="assets/battery.png?v=20260428" alt="" />
-            <span>Battery Check</span>
+            <span class="home-service-text">Battery Check</span>
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Tire Rotation as done" aria-pressed="false"></button>
             <img src="assets/warn.png?v=20260428" alt="" />
-            <span>Tire Rotation</span>
+            <span class="home-service-text">Tire Rotation</span>
           </article>
         </section>
       </div>
@@ -113,13 +113,87 @@
     <script src="auth-guard.js"></script>
     <script src="page-transitions.js"></script>
     <script>
-      document.querySelectorAll(".reminder-dot").forEach((dot) => {
-        dot.addEventListener("click", () => {
-          const isComplete = dot.getAttribute("aria-pressed") === "true";
-          dot.setAttribute("aria-pressed", String(!isComplete));
-          dot.classList.toggle("is-complete", !isComplete);
+      const toggleReminderDot = async (dot) => {
+        const table = dot.dataset.table;
+        const entryId = dot.dataset.entryId;
+        const userId = dot.dataset.userId;
+        if (!table || !entryId || !userId || !window.carDemoSupabase) return;
+
+        const isComplete = dot.getAttribute("aria-pressed") === "true";
+        const next = !isComplete;
+        dot.setAttribute("aria-pressed", String(next));
+        dot.classList.toggle("is-complete", next);
+
+        try {
+          const { error } = await window.carDemoSupabase
+            .from(table)
+            .update({ completed: next })
+            .eq("id", entryId)
+            .eq("user_id", userId);
+
+          if (error) {
+            dot.setAttribute("aria-pressed", String(isComplete));
+            dot.classList.toggle("is-complete", isComplete);
+            window.carDemoToast?.(`Could not update: ${error.message}`, { isError: true, durationMs: 2200 });
+          }
+        } catch (e) {
+          dot.setAttribute("aria-pressed", String(isComplete));
+          dot.classList.toggle("is-complete", isComplete);
+          window.carDemoToast?.("Could not update completed state.", { isError: true, durationMs: 2200 });
+        }
+      };
+
+      document.addEventListener(
+        "click",
+        async (event) => {
+          const dot = event.target.closest(".reminder-dot");
+          if (!dot) return;
+          event.preventDefault();
+          event.stopPropagation();
+          await toggleReminderDot(dot);
+        },
+        true
+      );
+
+      const homeRemindersCard = document.getElementById("homeRemindersCard");
+      const homeServicesCard = document.getElementById("homeServicesCard");
+      if (homeRemindersCard) {
+        const openRemindersList = () => {
+          window.location.href = "reminders-2.html";
+        };
+
+        homeRemindersCard.addEventListener("click", (event) => {
+          if (event.target.closest(".reminders-plus-link")) return;
+          if (event.target.closest(".reminder-dot")) return;
+          openRemindersList();
         });
-      });
+
+        homeRemindersCard.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openRemindersList();
+          }
+        });
+      }
+
+      if (homeServicesCard) {
+        const openServicesList = () => {
+          window.location.href = "notepad-2.html";
+        };
+
+        homeServicesCard.addEventListener("click", (event) => {
+          if (event.target.closest(".reminders-plus-link")) return;
+          if (event.target.closest(".reminder-dot")) return;
+          openServicesList();
+        });
+
+        homeServicesCard.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openServicesList();
+          }
+        });
+      }
     </script>
     <script>
       const carNote = document.getElementById("carViewerNote");
@@ -134,6 +208,100 @@
           carNote.classList.add("is-error");
         });
       }
+
+      (async () => {
+        const reminderTextNodes = document.querySelectorAll("#homeRemindersCard .home-reminder-text");
+        if (!window.carDemoSupabase || !reminderTextNodes.length) return;
+        const session = await window.getCarDemoSession();
+        if (!session) return;
+
+        const reminderDots = document.querySelectorAll("#homeRemindersCard .reminder-dot");
+        let data = null;
+        let error = null;
+
+        ({ data, error } = await window.carDemoSupabase
+          .from("reminders")
+          .select("id,user_id,text,completed")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(3));
+
+        if (error && String(error.message || "").toLowerCase().includes("completed")) {
+          ({ data, error } = await window.carDemoSupabase
+            .from("reminders")
+            .select("id,user_id,text")
+            .eq("user_id", session.user.id)
+            .order("created_at", { ascending: false })
+            .limit(3));
+          if (data) data = data.map((row) => ({ ...row, completed: false }));
+        }
+
+        if (error) {
+          window.carDemoToast?.(`Could not load reminders: ${error.message}`, { isError: true, durationMs: 2200 });
+          return;
+        }
+
+        const fallback = ["No reminders yet", "No reminders yet", "No reminders yet"];
+        reminderTextNodes.forEach((node, index) => {
+          const entry = data?.[index];
+          node.textContent = entry?.text || fallback[index];
+          const dot = reminderDots[index];
+          if (!dot) return;
+          dot.dataset.table = "reminders";
+          dot.dataset.entryId = entry?.id || "";
+          dot.dataset.userId = entry?.user_id || "";
+          dot.disabled = !entry;
+          dot.setAttribute("aria-pressed", String(Boolean(entry?.completed)));
+          dot.classList.toggle("is-complete", Boolean(entry?.completed));
+        });
+      })();
+
+      (async () => {
+        const serviceTextNodes = document.querySelectorAll("#homeServicesCard .home-service-text");
+        const serviceDots = document.querySelectorAll("#homeServicesCard .reminder-dot");
+        if (!window.carDemoSupabase || !serviceTextNodes.length) return;
+        const session = await window.getCarDemoSession();
+        if (!session) return;
+
+        let data = null;
+        let error = null;
+
+        ({ data, error } = await window.carDemoSupabase
+          .from("services_done")
+          .select("id,user_id,text,completed")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(3));
+
+        if (error && String(error.message || "").toLowerCase().includes("completed")) {
+          ({ data, error } = await window.carDemoSupabase
+            .from("services_done")
+            .select("id,user_id,text")
+            .eq("user_id", session.user.id)
+            .order("created_at", { ascending: false })
+            .limit(3));
+          if (data) data = data.map((row) => ({ ...row, completed: false }));
+        }
+
+        if (error) {
+          window.carDemoToast?.(`Could not load services: ${error.message}`, { isError: true, durationMs: 2200 });
+          return;
+        }
+
+        const fallback = ["No services yet", "No services yet", "No services yet"];
+        serviceTextNodes.forEach((node, index) => {
+          const entry = data?.[index];
+          node.textContent = entry?.text || fallback[index];
+          const dot = serviceDots[index];
+          if (!dot) return;
+          dot.dataset.table = "services_done";
+          dot.dataset.entryId = entry?.id || "";
+          dot.dataset.userId = entry?.user_id || "";
+          dot.disabled = !entry;
+          dot.setAttribute("aria-pressed", String(Boolean(entry?.completed)));
+          dot.classList.toggle("is-complete", Boolean(entry?.completed));
+        });
+      })();
     </script>
   </body>
 </html>

@@ -8,50 +8,147 @@
   </head>
   <body>
     <main class="screen fig-sheet-screen redesigned-screen">
-      <section class="fig-sheet fig-sheet--single">
+      <section class="fig-sheet fig-sheet--single fig-sheet--dynamic-reminders">
         <div class="fig-sheet-head">
           <h1>Reminders</h1>
           <a class="fig-sheet-close" href="index.html" aria-label="Close">×</a>
         </div>
 
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="saved-reminder-text">Example Service</span>
-        </div>
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="saved-reminder-text">Example Service</span>
-        </div>
-        <div class="fig-service-pill">
-          <span class="fig-service-dot" aria-hidden="true"></span>
-          <span class="saved-reminder-text">Example Service</span>
-        </div>
+        <p id="remindersLoading" class="fig-loading">Loading reminders...</p>
+        <div id="remindersList" class="fig-reminders-list" aria-live="polite"></div>
+        <p id="remindersEmptyState" class="fig-reminders-empty" style="display:none;">No reminders yet. Tap + to add your first reminder.</p>
       </section>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="auth-guard.js"></script>
     <script>
-      const reminderTextNodes = document.querySelectorAll(".saved-reminder-text");
+      const remindersList = document.getElementById("remindersList");
+      const remindersEmptyState = document.getElementById("remindersEmptyState");
+      const remindersLoading = document.getElementById("remindersLoading");
+
+      const makeReminderRow = (entry) => {
+        const row = document.createElement("div");
+        row.className = "fig-service-pill fig-reminder-row";
+
+        const dot = document.createElement("button");
+        dot.className = "fig-service-dot fig-service-dot-btn";
+        dot.type = "button";
+        dot.setAttribute("aria-label", `Mark ${entry.text} as completed`);
+        dot.setAttribute("aria-pressed", String(Boolean(entry.completed)));
+        dot.classList.toggle("is-complete", Boolean(entry.completed));
+        dot.addEventListener("click", async (event) => {
+          event.stopPropagation();
+          const isComplete = dot.getAttribute("aria-pressed") === "true";
+          const next = !isComplete;
+          dot.setAttribute("aria-pressed", String(next));
+          dot.classList.toggle("is-complete", next);
+
+          try {
+            if (!window.carDemoSupabase) return;
+            const { error } = await window.carDemoSupabase
+              .from("reminders")
+              .update({ completed: next })
+              .eq("id", entry.id)
+              .eq("user_id", entry.user_id);
+
+            if (error) {
+              dot.setAttribute("aria-pressed", String(isComplete));
+              dot.classList.toggle("is-complete", isComplete);
+              window.carDemoToast?.(`Could not update: ${error.message}`, { isError: true, durationMs: 2200 });
+            }
+          } catch (e) {
+            dot.setAttribute("aria-pressed", String(isComplete));
+            dot.classList.toggle("is-complete", isComplete);
+            window.carDemoToast?.("Could not update completed state.", { isError: true, durationMs: 2200 });
+          }
+        });
+
+        const text = document.createElement("span");
+        text.className = "fig-reminder-row-text";
+        const createdLabel = window.carDemoFormatTimestamp?.(entry.created_at);
+        text.textContent = createdLabel ? `${entry.text} — ${createdLabel}` : entry.text;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "fig-reminder-delete";
+        removeBtn.type = "button";
+        removeBtn.textContent = "Delete";
+        removeBtn.setAttribute("aria-label", `Delete reminder ${entry.text}`);
+        removeBtn.dataset.reminderId = entry.id;
+
+        row.appendChild(dot);
+        row.appendChild(text);
+        row.appendChild(removeBtn);
+        return row;
+      };
 
       (async () => {
-        if (!window.carDemoSupabase || !reminderTextNodes.length) return;
+        if (!window.carDemoSupabase || !remindersList || !remindersEmptyState || !remindersLoading) return;
         const session = await window.getCarDemoSession();
         if (!session) return;
 
-        const { data, error } = await window.carDemoSupabase
+        let data = null;
+        let error = null;
+
+        ({ data, error } = await window.carDemoSupabase
           .from("reminders")
-          .select("text,date_text,time_text")
+          .select("id,user_id,text,date_text,time_text,created_at,completed")
           .eq("user_id", session.user.id)
-          .order("created_at", { ascending: false })
-          .limit(3);
+          .order("created_at", { ascending: false }));
 
-        if (error || !data || !data.length) return;
+        if (error && String(error.message || "").toLowerCase().includes("completed")) {
+          // Fallback if the DB migration hasn't been run yet.
+          ({ data, error } = await window.carDemoSupabase
+            .from("reminders")
+            .select("id,user_id,text,date_text,time_text,created_at")
+            .eq("user_id", session.user.id)
+            .order("created_at", { ascending: false }));
+          if (data) data = data.map((row) => ({ ...row, completed: false }));
+        }
 
-        reminderTextNodes.forEach((node, index) => {
-          const entry = data[index];
-          if (entry) {
-            node.textContent = `${entry.text} (${entry.date_text} ${entry.time_text})`;
+        remindersLoading.style.display = "none";
+
+        if (error) {
+          window.carDemoToast?.(`Could not load reminders: ${error.message}`, { isError: true, durationMs: 2200 });
+          remindersEmptyState.textContent = "Could not load reminders. Please refresh.";
+          remindersEmptyState.style.display = "block";
+          return;
+        }
+
+        if (!data || !data.length) {
+          remindersEmptyState.style.display = "block";
+          return;
+        }
+
+        remindersEmptyState.style.display = "none";
+        remindersList.innerHTML = "";
+        data.forEach((entry) => {
+          remindersList.appendChild(makeReminderRow(entry));
+        });
+
+        remindersList.addEventListener("click", async (event) => {
+          const deleteBtn = event.target.closest(".fig-reminder-delete");
+          if (!deleteBtn) return;
+
+          const reminderId = deleteBtn.dataset.reminderId;
+          if (!reminderId) return;
+
+          const ok = await window.carDemoConfirm?.("Delete this reminder?");
+          if (!ok) return;
+
+          const { error: deleteError } = await window.carDemoSupabase
+            .from("reminders")
+            .delete()
+            .eq("id", reminderId)
+            .eq("user_id", session.user.id);
+
+          if (deleteError) return;
+
+          const row = deleteBtn.closest(".fig-reminder-row");
+          if (row) row.remove();
+
+          if (!remindersList.children.length) {
+            remindersEmptyState.style.display = "block";
           }
         });
       })();

@@ -9,10 +9,10 @@
   <body>
     <main class="screen maintenance redesigned-screen">
       <a class="top-icon-button back-icon-button" href="index.html" aria-label="Back">
-        <img src="https://www.figma.com/api/mcp/asset/d1c80ed4-f274-4b2f-a985-5f2d169b15dc" alt="" />
+        <img src="assets/arrow.png?v=20260428" alt="" />
       </a>
-      <a class="top-icon-button settings-top-button" href="settings.html" aria-label="Settings">
-        <img src="assets/settings.png?v=20260428" alt="" />
+      <a class="top-icon-button settings-top-button" href="index.html" aria-label="Home">
+        <img src="assets/house.png?v=20260428" alt="" />
       </a>
       <label class="search-pill" for="searchPartsInput">
         <span class="sr-only">Search Parts</span>
@@ -22,8 +22,8 @@
         <img class="maintenance-heading-icon" src="https://www.figma.com/api/mcp/asset/0f63b681-ead5-4fdb-9f82-c7372bfac40e" alt="" />
         <h1 class="maintenance-title">What are you looking for Today?</h1>
       </div>
-      <section class="maintenance-content">
-        <a class="maintenance-tile active" href="maintenance-opened.html">
+      <section class="maintenance-content" id="maintenanceContent">
+        <a class="maintenance-tile active" href="maintenance-opened.html" data-search="oil fluids chemicals oil change filter maintenance">
           <img class="tile-icon" src="https://www.figma.com/api/mcp/asset/dfee4ab2-daa2-49a2-9d7f-e5438085a35b" alt="" />
           <span>Oil, Fluids, and Chemicals</span>
         </a>
@@ -39,6 +39,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="auth-guard.js"></script>
+    <script>
+      const searchPartsInput = document.getElementById("searchPartsInput");
+      const maintenanceContent = document.getElementById("maintenanceContent");
+      const maintenanceTiles = Array.from(maintenanceContent?.querySelectorAll(".maintenance-tile") || []);
+
+      searchPartsInput?.addEventListener("input", () => {
+        const query = searchPartsInput.value.trim().toLowerCase();
+
+        maintenanceTiles.forEach((tile) => {
+          const searchText = (tile.dataset.search || "").toLowerCase();
+          const isPlaceholder = !searchText;
+          const matches = !query || (!isPlaceholder && searchText.includes(query));
+
+          tile.hidden = query ? !matches : false;
+        });
+      });
+    </script>
     <script src="page-transitions.js"></script>
   </body>
 </html>

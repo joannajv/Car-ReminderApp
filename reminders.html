@@ -47,6 +47,7 @@
         </div>
 
         <a class="fig-save-pill" id="saveReminderBtn" href="reminders-2.html">Save</a>
+        <p class="service-status" id="reminderStatus" aria-live="polite"></p>
       </section>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -61,13 +62,27 @@
       const hourInput = document.querySelector('input[aria-label="Hour"]');
       const minuteInput = document.querySelector('input[aria-label="Minute"]');
       const amPmInput = document.querySelector('select[aria-label="AM or PM"]');
+      const reminderStatus = document.getElementById("reminderStatus");
 
       if (saveReminderBtn && reminderTextInput) {
         saveReminderBtn.addEventListener("click", async (event) => {
           event.preventDefault();
-          if (!window.carDemoSupabase) return;
+          if (!window.carDemoSupabase) {
+            reminderStatus.textContent = "Supabase is not configured.";
+            reminderStatus.classList.add("is-error");
+            return;
+          }
           const session = await window.getCarDemoSession();
-          if (!session) return;
+          if (!session) {
+            reminderStatus.textContent = "Please sign in again.";
+            reminderStatus.classList.add("is-error");
+            return;
+          }
+
+          saveReminderBtn.classList.add("is-disabled");
+          saveReminderBtn.setAttribute("aria-disabled", "true");
+          const prevLabel = saveReminderBtn.textContent;
+          saveReminderBtn.textContent = "Saving...";
 
           const reminderText = reminderTextInput.value.trim() || "Untitled reminder";
           const dateText = `${monthInput?.value || "--"}/${dayInput?.value || "--"}/${yearInput?.value || "----"}`;
@@ -80,9 +95,23 @@
             time_text: timeText,
           });
 
-          if (!error) {
-            window.location.href = "reminders-2.html";
+          saveReminderBtn.classList.remove("is-disabled");
+          saveReminderBtn.removeAttribute("aria-disabled");
+          saveReminderBtn.textContent = prevLabel;
+
+          if (error) {
+            window.carDemoToast?.(`Could not save: ${error.message}`, { isError: true });
+            reminderStatus.textContent = `Could not save: ${error.message}`;
+            reminderStatus.classList.add("is-error");
+            return;
           }
+
+          reminderStatus.textContent = "";
+          reminderStatus.classList.remove("is-error");
+          window.carDemoToast?.("Reminder saved");
+          setTimeout(() => {
+            window.location.href = "reminders-2.html";
+          }, 450);
         });
       }
     </script>

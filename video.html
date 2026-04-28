@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car App - Videos</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen video-screen redesigned-screen">
+      <a class="top-icon-button button-back" href="index.html" aria-label="Back">
+        <img src="assets/arrow.png?v=20260428" alt="" />
+      </a>
+      <a class="top-icon-button settings-top-button" href="index.html" aria-label="Home">
+        <img src="assets/house.png?v=20260428" alt="" />
+      </a>
+
+      <div class="video-search-wrap">
+        <label class="video-search-label" for="videoSearchInput">Search</label>
+        <input id="videoSearchInput" class="video-search-input" type="search" placeholder="Search" autocomplete="off" />
+      </div>
+
+      <section class="video-list" aria-label="Video tutorials">
+        <article class="video-card" data-title="How to Change Your Oil Step by Step oil filter maintenance">
+          <iframe
+            src="https://www.youtube.com/embed/O1hF25Cowv8"
+            title="How to Change Your Oil Step by Step"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Change Your Oil (Step-by-Step)</p>
+        </article>
+
+        <article class="video-card" data-title="How to Replace Windshield Wipers wiper blades beginner">
+          <iframe
+            src="https://www.youtube.com/embed/uMyzYI26zTM"
+            title="How to Replace Windshield Wipers"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Replace Windshield Wipers</p>
+        </article>
+
+        <article class="video-card" data-title="How to Replace a Tail Light Bulb tail light beginner repair">
+          <iframe
+            src="https://www.youtube.com/embed/KN-BX-33nXk"
+            title="How to Replace a Tail Light Bulb"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Replace a Tail Light Bulb</p>
+        </article>
+
+        <article class="video-card" data-title="How to Replace a Headlight Bulb headlight bulb easy fix">
+          <iframe
+            src="https://www.youtube.com/embed/HO3IXM3XkUU"
+            title="How to Replace a Headlight Bulb"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Replace a Headlight Bulb</p>
+        </article>
+
+        <article class="video-card" data-title="How to Change a Car Battery battery replacement diy">
+          <iframe
+            src="https://www.youtube.com/embed/6AbWM9QD0nM"
+            title="How to Change a Car Battery"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Replace a Car Battery</p>
+        </article>
+
+        <article class="video-card" data-title="How to Change Engine Air Filter cabin air filter filters at home">
+          <iframe
+            src="https://www.youtube.com/embed/zLg96Q6byvg"
+            title="How to Change Engine and Cabin Air Filters"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Change Engine and Cabin Air Filters</p>
+        </article>
+
+        <article class="video-card" data-title="How to Jump Start a Car emergency battery cables">
+          <iframe
+            src="https://www.youtube.com/embed/VdnkRQF5Cps"
+            title="How to Jump Start a Car"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Jump Start a Car</p>
+        </article>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-guard.js"></script>
+    <script src="page-transitions.js"></script>
+    <script>
+      const videoSearchInput = document.getElementById("videoSearchInput");
+      const videoCards = Array.from(document.querySelectorAll(".video-card"));
+
+      videoSearchInput?.addEventListener("input", () => {
+        const query = videoSearchInput.value.trim().toLowerCase();
+
+        videoCards.forEach((card) => {
+          const title = (card.dataset.title || "").toLowerCase();
+          card.hidden = query ? !title.includes(query) : false;
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -47,11 +47,80 @@
         </div>
 
         <a class="fig-save-pill" id="saveServiceBtn" href="notepad-2.html">Save</a>
+        <p class="service-status" id="serviceStatus" aria-live="polite"></p>
       </section>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="auth-guard.js"></script>
+    <script>
+      const saveServiceBtn = document.getElementById("saveServiceBtn");
+      const serviceTextInput = document.getElementById("serviceTextInput");
+      const serviceMonthInput = document.querySelector('input[aria-label="Month"]');
+      const serviceDayInput = document.querySelector('input[aria-label="Day"]');
+      const serviceYearInput = document.querySelector('input[aria-label="Year"]');
+      const serviceHourInput = document.querySelector('input[aria-label="Hour"]');
+      const serviceMinuteInput = document.querySelector('input[aria-label="Minute"]');
+      const serviceAmPmInput = document.querySelector('select[aria-label="AM or PM"]');
+      const serviceStatus = document.getElementById("serviceStatus");
+
+      saveServiceBtn?.addEventListener("click", async (event) => {
+        event.preventDefault();
+        if (!window.carDemoSupabase) {
+          if (serviceStatus) {
+            serviceStatus.textContent = "Supabase is not configured.";
+            serviceStatus.classList.add("is-error");
+          }
+          return;
+        }
+        const session = await window.getCarDemoSession();
+        if (!session) {
+          if (serviceStatus) {
+            serviceStatus.textContent = "Please sign in again.";
+            serviceStatus.classList.add("is-error");
+          }
+          return;
+        }
+
+        const text = serviceTextInput?.value.trim() || "Untitled service";
+        const dateText = `${serviceMonthInput?.value || "--"}/${serviceDayInput?.value || "--"}/${serviceYearInput?.value || "----"}`;
+        const timeText = `${serviceHourInput?.value || "--"}:${serviceMinuteInput?.value || "--"} ${serviceAmPmInput?.value || "AM"}`;
+
+        saveServiceBtn.classList.add("is-disabled");
+        saveServiceBtn.setAttribute("aria-disabled", "true");
+        const prevLabel = saveServiceBtn.textContent;
+        saveServiceBtn.textContent = "Saving...";
+
+        const { error } = await window.carDemoSupabase.from("services_done").insert({
+          user_id: session.user.id,
+          text,
+          date_text: dateText,
+          time_text: timeText,
+        });
+
+        saveServiceBtn.classList.remove("is-disabled");
+        saveServiceBtn.removeAttribute("aria-disabled");
+        saveServiceBtn.textContent = prevLabel;
+
+        if (error) {
+          if (serviceStatus) {
+            serviceStatus.textContent = `Could not save: ${error.message}`;
+            serviceStatus.classList.add("is-error");
+          }
+          window.carDemoToast?.(`Could not save: ${error.message}`, { isError: true });
+          return;
+        }
+
+        if (serviceStatus) {
+          serviceStatus.textContent = "";
+          serviceStatus.classList.remove("is-error");
+        }
+        window.carDemoToast?.("Service saved");
+        setTimeout(() => {
+          window.location.href = "notepad-2.html";
+        }, 450);
+      });
+    </script>
     <script src="page-transitions.js"></script>
   </body>
 </html>
