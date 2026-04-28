@@ -649,6 +649,9 @@ body {
 .home-car-viewer {
   width: 100%;
   height: 100%;
+  display: block;
+  background: transparent;
+  --poster-color: transparent;
 }
 
 .home-car-viewer canvas {
