@@ -148,7 +148,12 @@
       scene.add(floor);
 
       const loader = new GLTFLoader();
-      const modelPath = encodeURI("assets/Range Rover Sports 2018 (.GLB).glb");
+      const modelCandidates = [
+        "assets/Range Rover Sports 2018 (.GLB).glb",
+        encodeURI("assets/Range Rover Sports 2018 (.GLB).glb"),
+        "./assets/Range Rover Sports 2018 (.GLB).glb",
+        encodeURI("./assets/Range Rover Sports 2018 (.GLB).glb"),
+      ];
       let carModel = null;
       const clock = new THREE.Clock();
       const isFileProtocol = window.location.protocol === "file:";
@@ -158,37 +163,47 @@
         note.classList.add("is-error");
       }
 
-      loader.load(
-        modelPath,
-        (gltf) => {
-          carModel = gltf.scene;
-          scene.add(carModel);
+      const setupLoadedModel = (gltf) => {
+        carModel = gltf.scene;
+        scene.add(carModel);
 
-          const box = new THREE.Box3().setFromObject(carModel);
-          const center = box.getCenter(new THREE.Vector3());
-          const sizeVec = box.getSize(new THREE.Vector3());
-          const maxSize = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
-          carModel.position.sub(center);
-          carModel.position.y += maxSize * 0.15;
+        const box = new THREE.Box3().setFromObject(carModel);
+        const center = box.getCenter(new THREE.Vector3());
+        const sizeVec = box.getSize(new THREE.Vector3());
+        const maxSize = Math.max(sizeVec.x, sizeVec.y, sizeVec.z);
+        carModel.position.sub(center);
+        carModel.position.y += maxSize * 0.15;
 
-          const size = sizeVec.length();
-          const fitScale = size > 0 ? 3.4 / size : 1;
-          carModel.scale.setScalar(fitScale);
+        const size = sizeVec.length();
+        const fitScale = size > 0 ? 3.4 / size : 1;
+        carModel.scale.setScalar(fitScale);
 
-          const distance = maxSize > 0 ? maxSize * 1.45 : 4.5;
-          camera.position.set(0, maxSize * 0.45, distance);
-          camera.lookAt(0, maxSize * 0.2, 0);
-          controls.target.set(0, maxSize * 0.2, 0);
-          controls.update();
-          note.textContent = "";
-        },
-        undefined,
-        (error) => {
-          const details = error?.message || String(error || "Unknown loader error");
-          note.textContent = `Could not load model: ${details}`;
+        const distance = maxSize > 0 ? maxSize * 1.45 : 4.5;
+        camera.position.set(0, maxSize * 0.45, distance);
+        camera.lookAt(0, maxSize * 0.2, 0);
+        controls.target.set(0, maxSize * 0.2, 0);
+        controls.update();
+        note.textContent = "";
+        note.classList.remove("is-error");
+      };
+
+      const tryLoadModel = (index = 0, lastError = null) => {
+        if (index >= modelCandidates.length) {
+          const details = lastError?.message || String(lastError || "Unknown loader error");
+          note.textContent = `Could not load model. Tried ${modelCandidates.length} paths. Last error: ${details}`;
           note.classList.add("is-error");
+          return;
         }
-      );
+
+        loader.load(
+          modelCandidates[index],
+          (gltf) => setupLoadedModel(gltf),
+          undefined,
+          (error) => tryLoadModel(index + 1, error)
+        );
+      };
+
+      tryLoadModel();
 
       const onResize = () => {
         const width = container.clientWidth;
