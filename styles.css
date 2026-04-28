@@ -6,7 +6,7 @@
   --bg: #000000;
   --surface: #d9d9d9;
   --icon: #3c5264;
-  --app-scale: min(1, calc((100vw - 32px) / var(--screen-width)), calc((100vh - 32px) / var(--screen-height)));
+  --app-scale: min(calc(100vw / var(--screen-width)), calc(100vh / var(--screen-height)));
 }
 
 *,

@@ -22,8 +22,9 @@
       </div>
       <aside class="mechanic-sheet" id="mechanicSheet" aria-label="Mechanic details">
         <img
+          id="mechanicPhoto"
           class="mechanic-sheet-photo"
-          src="https://www.figma.com/api/mcp/asset/8e3a2042-5384-4c64-bd5e-935c0a2590fd"
+          src="assets/harvestauto.webp?v=20260428"
           alt="Shop interior"
         />
         <img
@@ -48,6 +49,7 @@
     <script>
       const mapElement = document.getElementById("mapbox-map");
       const mechanicSheet = document.getElementById("mechanicSheet");
+      const mechanicPhoto = document.getElementById("mechanicPhoto");
       const mechanicName = document.getElementById("mechanicName");
       const mechanicPhone = document.getElementById("mechanicPhone");
       const mechanicAddress = document.getElementById("mechanicAddress");
@@ -60,67 +62,89 @@
           address: "2221 Cumberland Ave, Knoxville, TN 37916",
           phone: "(865) 522-2425",
           rating: "4.6",
-          price: "$"
+          price: "$",
+          coords: [-83.9336, 35.9566],
+          image: "assets/harvestauto.webp?v=20260428"
         },
         {
           name: "RT Clapp Automotive",
           address: "2045 E Magnolia Ave, Knoxville, TN 37917",
           phone: "(865) 525-8246",
           rating: "4.5",
-          price: "$$$"
+          price: "$$$",
+          coords: [-83.8912, 35.9725],
+          image: "assets/rtclapp.webp?v=20260428"
         },
         {
           name: "CAR FIX Western Ave",
           address: "4724 Western Ave, Knoxville, TN 37921",
           phone: "(865) 247-5033",
           rating: "4.4",
-          price: "$$"
+          price: "$$",
+          coords: [-84.0135, 35.9722],
+          image: "assets/carfix.webp?v=20260428"
         },
         {
           name: "All Terrain Auto Care",
-          address: "2335 Piney Grove Church Rd, Knoxville, TN 37909",
+          address: "2335 Piney Grove Church Rd, Knoxville, TN",
           phone: "(865) 337-8217",
           rating: "4.8",
-          price: "$$$$"
+          price: "$$$$",
+          coords: [-84.0362, 35.9404],
+          image: "assets/allterrain.jpeg?v=20260428"
         },
         {
           name: "Service Street Tire & Auto Repair",
           address: "9133 Executive Park Dr, Knoxville, TN 37923",
           phone: "(865) 444-3249",
           rating: "4.7",
-          price: "$"
+          price: "$",
+          coords: [-84.0982, 35.9263],
+          image: "assets/servicestreet.webp?v=20260428"
         },
         {
           name: "Christian Brothers Automotive",
           address: "10406 Kingston Pike, Knoxville, TN 37922",
           phone: "(865) 409-2345",
           rating: "4.8",
-          price: "$$$"
+          price: "$$$",
+          coords: [-84.1297, 35.9021],
+          image: "assets/christianbros.webp?v=20260428"
         },
         {
           name: "AutoXtend",
           address: "1309 E Beaver Creek Dr, Knoxville, TN 37918",
           phone: "(865) 688-5278",
           rating: "4.7",
-          price: "$$$"
+          price: "$$$",
+          coords: [-83.9302, 36.0365],
+          image: "assets/autoxtend.webp?v=20260428"
         },
         {
           name: "Fountain City Auto Clinic",
           address: "2823 Woodrow Dr, Knoxville, TN 37918",
           phone: "(865) 688-2528",
           rating: "4.5",
-          price: "$"
+          price: "$",
+          coords: [-83.926, 36.0172],
+          image: "assets/fountaincity.jpg?v=20260428"
         },
         {
           name: "Precision Tune Auto Care",
           address: "5715 Kingston Pike, Knoxville, TN 37919",
           phone: "(865) 584-8181",
           rating: "4.4",
-          price: "$$$"
+          price: "$$$",
+          coords: [-84.0201, 35.9362],
+          image: "assets/precisiontune.webp?v=20260428"
         }
       ];
 
       function setMechanicCard(shop) {
+        if (mechanicPhoto && shop.image) {
+          mechanicPhoto.src = shop.image;
+          mechanicPhoto.alt = `${shop.name} photo`;
+        }
         mechanicName.textContent = shop.name;
         mechanicPhone.textContent = shop.phone;
         mechanicPhone.href = `tel:${shop.phone.replace(/\D/g, "")}`;
@@ -145,31 +169,16 @@
           map.resize();
         });
 
-        shops.forEach(async (shop) => {
-          const searchText = encodeURIComponent(`${shop.name}, ${shop.address}`);
+        shops.forEach((shop) => {
+          if (!shop.coords) return;
+          const marker = new mapboxgl.Marker({ color: "#3b82f6" })
+            .setLngLat(shop.coords)
+            .addTo(map);
 
-          try {
-            const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchText}.json?limit=1&proximity=${utkCenter[0]},${utkCenter[1]}&access_token=${mapboxgl.accessToken}`
-            );
-            const data = await response.json();
-            const feature = data.features && data.features[0];
-
-            if (!feature) {
-              return;
-            }
-
-            const marker = new mapboxgl.Marker({ color: "#3b82f6" })
-              .setLngLat(feature.center)
-              .addTo(map);
-
-            marker.getElement().addEventListener("click", (event) => {
-              event.stopPropagation();
-              setMechanicCard(shop);
-            });
-          } catch (error) {
-            console.error("Unable to load shop pin", shop.name, error);
-          }
+          marker.getElement().addEventListener("click", (event) => {
+            event.stopPropagation();
+            setMechanicCard(shop);
+          });
         });
 
         map.on("click", () => {
