@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car App - Create Account</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen auth-screen redesigned-screen">
+      <section class="auth-brand auth-brand--create">
+        <img class="auth-brand-icon" src="https://www.figma.com/api/mcp/asset/54f57daa-75d3-4bdd-8ee3-e36519f27606" alt="" />
+        <h1>Welcome to Car Buddy!</h1>
+      </section>
+
+      <section class="auth-panel auth-panel--create">
+        <label class="sr-only" for="createName">Name</label>
+        <input class="auth-field-input auth-field-input--pill" id="createName" type="text" placeholder="Name" />
+
+        <label class="sr-only" for="createEmail">Email</label>
+        <input class="auth-field-input auth-field-input--pill auth-field-input--spaced" id="createEmail" type="email" placeholder="Email" />
+
+        <label class="sr-only" for="createPassword">Password</label>
+        <input class="auth-field-input auth-field-input--pill auth-field-input--spaced" id="createPassword" type="password" placeholder="Password" />
+
+        <h2 class="auth-section-title">What kind of car do you drive?</h2>
+        <div class="auth-car-grid">
+          <label class="sr-only" for="createYear">Year</label>
+          <select class="auth-car-input" id="createYear">
+            <option value="">Year</option>
+            <option value="2018">2018</option>
+            <option value="2020">2020</option>
+            <option value="2022">2022</option>
+          </select>
+
+          <label class="sr-only" for="createMake">Make</label>
+          <select class="auth-car-input" id="createMake">
+            <option value="">Make</option>
+            <option value="Range Rover">Range</option>
+            <option value="Porsche">Porsche</option>
+            <option value="Cadillac">Cadillac</option>
+          </select>
+
+          <label class="sr-only" for="createModel">Model</label>
+          <select class="auth-car-input" id="createModel">
+            <option value="">Model</option>
+            <option value="Sport">Sport</option>
+          </select>
+        </div>
+
+        <label class="auth-terms">
+          <input id="createTerms" type="checkbox" />
+          <span>I agree to the Terms of Service.</span>
+        </label>
+      </section>
+
+      <button class="auth-signup-btn" id="createAccountBtn" type="button">Sign Up</button>
+      <p class="auth-status auth-status--create" id="createAuthStatus" aria-live="polite"></p>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-guard.js"></script>
+    <script>
+      const createName = document.getElementById("createName");
+      const createEmail = document.getElementById("createEmail");
+      const createPassword = document.getElementById("createPassword");
+      const createYear = document.getElementById("createYear");
+      const createMake = document.getElementById("createMake");
+      const createModel = document.getElementById("createModel");
+      const createTerms = document.getElementById("createTerms");
+      const createAccountBtn = document.getElementById("createAccountBtn");
+      const createAuthStatus = document.getElementById("createAuthStatus");
+      const carOptions = [
+        { year: "2018", makeValue: "Range Rover", makeLabel: "Range", model: "Sport" },
+        { year: "2020", makeValue: "Porsche", makeLabel: "Porsche", model: "Turbo" },
+        { year: "2022", makeValue: "Cadillac", makeLabel: "Cadillac", model: "CT5" }
+      ];
+
+      const syncCarDropdowns = () => {
+        const year = createYear.value;
+        const previousMake = createMake.value;
+        const previousModel = createModel.value;
+
+        createMake.innerHTML = '<option value="">Make</option>';
+        const yearMatch = carOptions.find((entry) => entry.year === year);
+        if (yearMatch) {
+          createMake.innerHTML += `<option value="${yearMatch.makeValue}">${yearMatch.makeLabel}</option>`;
+        }
+
+        createModel.innerHTML = '<option value="">Model</option>';
+
+        if (yearMatch && yearMatch.makeValue === previousMake) {
+          createModel.innerHTML += `<option value="${yearMatch.model}">${yearMatch.model}</option>`;
+          createMake.value = previousMake;
+          if (previousModel === yearMatch.model) createModel.value = previousModel;
+        }
+      };
+
+      createYear?.addEventListener("change", syncCarDropdowns);
+      createMake?.addEventListener("change", syncCarDropdowns);
+      syncCarDropdowns();
+
+      const setCreateStatus = (msg, isError = false) => {
+        createAuthStatus.textContent = msg;
+        createAuthStatus.classList.toggle("is-error", isError);
+      };
+
+      createAccountBtn?.addEventListener("click", async () => {
+        if (!window.carDemoSupabase) return setCreateStatus("Supabase is not configured yet.", true);
+
+        const name = createName.value.trim();
+        const email = createEmail.value.trim();
+        const password = createPassword.value;
+        const year = createYear.value.trim();
+        const make = createMake.value.trim();
+        const model = createModel.value.trim();
+
+        if (!name || !email || !password) return setCreateStatus("Name, email, and password are required.", true);
+        if (!year || !make || !model) return setCreateStatus("Please choose year, make, and model.", true);
+        if (!createTerms.checked) return setCreateStatus("Please accept Terms of Service.", true);
+
+        setCreateStatus("Creating account...");
+
+        const { error: signUpError } = await window.carDemoSupabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name,
+              car_year: year,
+              car_make: make,
+              car_model: model
+            }
+          }
+        });
+        if (signUpError) return setCreateStatus(signUpError.message, true);
+
+        const { error: signInError } = await window.carDemoSupabase.auth.signInWithPassword({ email, password });
+        if (signInError) return setCreateStatus(signInError.message, true);
+
+        localStorage.setItem(
+          "carDemoProfile",
+          JSON.stringify({
+            name,
+            email,
+            carYear: year,
+            carMake: make,
+            carModel: model
+          })
+        );
+
+        window.location.href = "index.html";
+      });
+    </script>
+    <script src="page-transitions.js"></script>
+  </body>
+</html>

@@ -14,8 +14,8 @@
     <main class="screen homepage redesigned-screen homepage--scrollable">
       <div class="homepage-scroll-stack">
         <header class="home-header">
-          <p>Welcome, User!</p>
-          <a class="home-menu-link" href="settings.html" aria-label="Open settings">
+          <p id="homeGreeting">Welcome, User!</p>
+          <a class="home-menu-link" href="settings.html" aria-label="Open profile settings">
             <span class="home-menu-hamburger" aria-hidden="true">
               <span></span>
               <span></span>
@@ -27,7 +27,7 @@
         <div class="home-car-wrap">
           <model-viewer
             class="home-car-viewer"
-            src="assets/Range Rover Sports 2018 (.GLB).glb?v=20260428"
+            src="assets/turboporsche.glb?v=20260428"
             alt="3D car preview"
             camera-controls
             auto-rotate
@@ -113,6 +113,27 @@
     <script src="auth-guard.js"></script>
     <script src="page-transitions.js"></script>
     <script>
+      (async () => {
+        const greeting = document.getElementById("homeGreeting");
+        if (!greeting) return;
+
+        const storedProfile = JSON.parse(localStorage.getItem("carDemoProfile") || "{}");
+        const storedName = (storedProfile.name || "").trim();
+
+        let sessionName = "";
+        let emailFallback = "";
+        if (window.getCarDemoSession) {
+          const session = await window.getCarDemoSession();
+          sessionName = (session?.user?.user_metadata?.name || "").trim();
+          emailFallback = (session?.user?.email || "").trim();
+        }
+
+        const firstName = (storedName || sessionName || "").split(/\s+/)[0];
+        const fallbackName = emailFallback ? emailFallback.split("@")[0] : "User";
+        const finalName = firstName || fallbackName || "User";
+        greeting.textContent = `Welcome, ${finalName}!`;
+      })();
+
       const toggleReminderDot = async (dot) => {
         const table = dot.dataset.table;
         const entryId = dot.dataset.entryId;
@@ -199,6 +220,26 @@
       const carNote = document.getElementById("carViewerNote");
       const carViewer = document.querySelector(".home-car-viewer");
       if (carNote && carViewer) {
+        const getStoredProfile = () => JSON.parse(localStorage.getItem("carDemoProfile") || "{}");
+        const resolveModelSrc = (profile) => {
+          const year = (profile.carYear || "").trim();
+          const make = (profile.carMake || "").trim();
+          const model = (profile.carModel || "").trim();
+
+          if (year === "2018" && make === "Range Rover" && model === "Sport") {
+            return "assets/Range Rover Sports 2018 (.GLB).glb?v=20260428";
+          }
+          if (year === "2020" && make === "Porsche" && model === "Turbo") {
+            return "assets/turboporsche.glb?v=20260428";
+          }
+          if (year === "2022" && make === "Cadillac" && model === "CT5") {
+            return "assets/cadillac.glb?v=20260428";
+          }
+          return "assets/turboporsche.glb?v=20260428";
+        };
+
+        carViewer.src = resolveModelSrc(getStoredProfile());
+
         carViewer.addEventListener("load", () => {
           carNote.textContent = "";
           carNote.classList.remove("is-error");

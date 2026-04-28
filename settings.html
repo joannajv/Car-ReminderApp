@@ -11,17 +11,137 @@
       <a class="top-icon-button settings-screen-back" href="index.html" aria-label="Back">
         <img src="assets/arrow.png?v=20260428" alt="" />
       </a>
-      <div class="settings-tile" aria-current="page">
-        <img class="settings-tile-icon" src="assets/settings.png?v=20260428" alt="" />
-        <span>Settings</span>
-      </div>
-      <button class="settings-logout-btn" id="settingsLogoutBtn" type="button">Log Out</button>
+
+      <img class="settings-hero-icon" src="assets/settings.png?v=20260428" alt="" />
+
+      <section class="settings-profile-card">
+        <h2>Personal Information</h2>
+        <input class="settings-profile-input" id="settingsName" type="text" placeholder="Name" />
+        <input class="settings-profile-input settings-profile-input--spaced" id="settingsEmail" type="email" placeholder="Email" />
+
+        <h3>Car Information</h3>
+        <div class="settings-car-grid">
+          <label class="sr-only" for="settingsYear">Year</label>
+          <select class="settings-car-input" id="settingsYear">
+            <option value="">Year</option>
+            <option value="2018">2018</option>
+            <option value="2020">2020</option>
+            <option value="2022">2022</option>
+          </select>
+
+          <label class="sr-only" for="settingsMake">Make</label>
+          <select class="settings-car-input" id="settingsMake">
+            <option value="">Make</option>
+            <option value="Range Rover">Range</option>
+            <option value="Porsche">Porsche</option>
+            <option value="Cadillac">Cadillac</option>
+          </select>
+
+          <label class="sr-only" for="settingsModel">Model</label>
+          <select class="settings-car-input" id="settingsModel">
+            <option value="">Model</option>
+            <option value="Sport">Sport</option>
+          </select>
+        </div>
+      </section>
+
+      <button class="settings-action-btn" id="settingsSaveBtn" type="button">Save Information</button>
+      <button class="settings-action-btn settings-action-btn--logout" id="settingsLogoutBtn" type="button">Log Out</button>
+      <p class="auth-status settings-status" id="settingsStatus" aria-live="polite"></p>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="auth-guard.js"></script>
     <script>
+      const settingsName = document.getElementById("settingsName");
+      const settingsEmail = document.getElementById("settingsEmail");
+      const settingsYear = document.getElementById("settingsYear");
+      const settingsMake = document.getElementById("settingsMake");
+      const settingsModel = document.getElementById("settingsModel");
+      const settingsSaveBtn = document.getElementById("settingsSaveBtn");
       const settingsLogoutBtn = document.getElementById("settingsLogoutBtn");
+      const settingsStatus = document.getElementById("settingsStatus");
+      const carOptions = [
+        { year: "2018", makeValue: "Range Rover", makeLabel: "Range", model: "Sport" },
+        { year: "2020", makeValue: "Porsche", makeLabel: "Porsche", model: "Turbo" },
+        { year: "2022", makeValue: "Cadillac", makeLabel: "Cadillac", model: "CT5" }
+      ];
+
+      const syncSettingsCarDropdowns = () => {
+        const year = settingsYear.value;
+        const previousMake = settingsMake.value;
+        const previous = settingsModel.value;
+
+        settingsMake.innerHTML = '<option value="">Make</option>';
+        const yearMatch = carOptions.find((entry) => entry.year === year);
+        if (yearMatch) {
+          settingsMake.innerHTML += `<option value="${yearMatch.makeValue}">${yearMatch.makeLabel}</option>`;
+        }
+
+        settingsModel.innerHTML = '<option value="">Model</option>';
+
+        if (yearMatch && yearMatch.makeValue === previousMake) {
+          settingsModel.innerHTML += `<option value="${yearMatch.model}">${yearMatch.model}</option>`;
+          settingsMake.value = previousMake;
+        }
+
+        if (Array.from(settingsModel.options).some((option) => option.value === previous)) {
+          settingsModel.value = previous;
+        }
+      };
+
+      settingsYear?.addEventListener("change", syncSettingsCarDropdowns);
+      settingsMake?.addEventListener("change", syncSettingsCarDropdowns);
+
+      const setSettingsStatus = (msg, isError = false) => {
+        settingsStatus.textContent = msg;
+        settingsStatus.classList.toggle("is-error", isError);
+      };
+
+      (async () => {
+        const session = await window.getCarDemoSession?.();
+        const user = session?.user;
+        const stored = JSON.parse(localStorage.getItem("carDemoProfile") || "{}");
+        const carYear = stored.carYear || user?.user_metadata?.car_year || "";
+        const carMake = stored.carMake || user?.user_metadata?.car_make || "";
+        const carModel = stored.carModel || user?.user_metadata?.car_model || "";
+
+        settingsName.value = stored.name || user?.user_metadata?.name || "";
+        settingsEmail.value = stored.email || user?.email || "";
+        settingsYear.value = carYear;
+        settingsMake.value = carMake;
+        syncSettingsCarDropdowns();
+        settingsModel.value = carModel;
+      })();
+
+      settingsSaveBtn?.addEventListener("click", async () => {
+        const profile = {
+          name: settingsName.value.trim(),
+          email: settingsEmail.value.trim(),
+          carYear: settingsYear.value.trim(),
+          carMake: settingsMake.value.trim(),
+          carModel: settingsModel.value.trim()
+        };
+
+        localStorage.setItem("carDemoProfile", JSON.stringify(profile));
+
+        try {
+          if (window.carDemoSupabase) {
+            await window.carDemoSupabase.auth.updateUser({
+              data: {
+                name: profile.name,
+                car_year: profile.carYear,
+                car_make: profile.carMake,
+                car_model: profile.carModel
+              }
+            });
+          }
+          setSettingsStatus("Saved.");
+        } catch (error) {
+          setSettingsStatus("Saved locally. Could not sync profile.", true);
+        }
+      });
+
       settingsLogoutBtn?.addEventListener("click", async () => {
         await window.signOutCarDemo("login.html");
       });

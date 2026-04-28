@@ -1,6 +1,6 @@
 (async function guardRoute() {
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
-  const publicPages = new Set(["login.html"]);
+  const publicPages = new Set(["login.html", "create-account.html"]);
 
   if (publicPages.has(currentPage)) {
     if (window.getCarDemoSession) {
