@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car App - Login</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen notes-screen redesigned-screen">
+      <section class="notes-card auth-card">
+        <h1>Sign In</h1>
+        <p class="auth-helper">Use your account to sync reminders across devices.</p>
+
+        <label class="notes-label" for="authEmail">Email</label>
+        <input class="notes-input" id="authEmail" type="email" placeholder="you@example.com" />
+
+        <label class="notes-label" for="authPassword" style="margin-top: 12px;">Password</label>
+        <input class="notes-input" id="authPassword" type="password" placeholder="Enter password" />
+
+        <button class="notes-save auth-action-btn" id="signInBtn" type="button">Sign In</button>
+        <button class="notes-save auth-action-btn" id="signUpBtn" type="button">Create Account</button>
+        <p class="auth-status" id="authStatus" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-guard.js"></script>
+    <script>
+      const authEmail = document.getElementById("authEmail");
+      const authPassword = document.getElementById("authPassword");
+      const signInBtn = document.getElementById("signInBtn");
+      const signUpBtn = document.getElementById("signUpBtn");
+      const authStatus = document.getElementById("authStatus");
+
+      const setStatus = (msg, isError = false) => {
+        authStatus.textContent = msg;
+        authStatus.classList.toggle("is-error", isError);
+      };
+
+      const getCredentials = () => {
+        const email = authEmail.value.trim();
+        const password = authPassword.value;
+        if (!email || !password) {
+          setStatus("Email and password are required.", true);
+          return null;
+        }
+        return { email, password };
+      };
+
+      signInBtn?.addEventListener("click", async () => {
+        if (!window.carDemoSupabase) return setStatus("Supabase is not configured yet.", true);
+        const creds = getCredentials();
+        if (!creds) return;
+        setStatus("Signing in...");
+        const { error } = await window.carDemoSupabase.auth.signInWithPassword(creds);
+        if (error) return setStatus(error.message, true);
+        window.location.href = "index.html";
+      });
+
+      signUpBtn?.addEventListener("click", async () => {
+        if (!window.carDemoSupabase) return setStatus("Supabase is not configured yet.", true);
+        const creds = getCredentials();
+        if (!creds) return;
+        setStatus("Creating account...");
+        const { error } = await window.carDemoSupabase.auth.signUp(creds);
+        if (error) return setStatus(error.message, true);
+        setStatus("Account created. Check your email to confirm if required.");
+      });
+
+    </script>
+  </body>
+</html>

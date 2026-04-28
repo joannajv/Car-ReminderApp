@@ -12,10 +12,20 @@
         <img src="https://www.figma.com/api/mcp/asset/5687e9f2-58d7-45ec-a2c5-09dcd9bfdb4c" alt="" />
       </a>
       <div class="settings-tile" aria-current="page">
-        <img class="settings-tile-icon" src="https://www.figma.com/api/mcp/asset/95616c8e-7c49-4cb4-9caa-0210d881dbd5" alt="" />
+        <img class="settings-tile-icon" src="assets/settings.png?v=20260428" alt="" />
         <span>Settings</span>
       </div>
+      <button class="settings-logout-btn" id="settingsLogoutBtn" type="button">Log Out</button>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-guard.js"></script>
+    <script>
+      const settingsLogoutBtn = document.getElementById("settingsLogoutBtn");
+      settingsLogoutBtn?.addEventListener("click", async () => {
+        await window.signOutCarDemo("login.html");
+      });
+    </script>
     <script src="page-transitions.js"></script>
   </body>
 </html>

@@ -27,7 +27,7 @@
         <div class="home-car-wrap">
           <model-viewer
             class="home-car-viewer"
-            src="assets/Range Rover Sports 2018 (.GLB).glb"
+            src="assets/Range Rover Sports 2018 (.GLB).glb?v=20260428"
             alt="3D car preview"
             camera-controls
             auto-rotate
@@ -44,21 +44,25 @@
 
         <nav class="home-quick-actions" aria-label="Quick actions">
           <a class="home-action-tile" href="page2.html" aria-label="Map">
-            <img src="https://www.figma.com/api/mcp/asset/16cd1a29-7dd0-4606-a7cc-fca22b0c748e" alt="" />
+            <img src="assets/location.png?v=20260428" alt="" />
           </a>
           <a class="home-action-tile" href="page3.html" aria-label="Parts and fluids">
             <img class="home-action-motor" src="https://www.figma.com/api/mcp/asset/cc2dfe34-7e68-4ec8-87e3-7ea72fe692cb" alt="" />
           </a>
-          <span class="home-action-tile home-action-tile--empty" aria-hidden="true"></span>
+          <span class="home-action-tile home-action-tile--empty" aria-hidden="true">
+            <img src="assets/playvideo.png?v=20260428" alt="" />
+          </span>
           <a class="home-action-tile" href="settings.html" aria-label="Settings">
-            <img src="https://www.figma.com/api/mcp/asset/099237fd-064b-41ef-bbf4-86b2c9a87182" alt="" />
+            <img src="assets/settings.png?v=20260428" alt="" />
           </a>
         </nav>
 
         <section class="reminders-card" aria-label="Reminders">
           <div class="reminders-top-row">
             <h1>Reminders</h1>
-            <img class="reminders-plus-icon" src="https://www.figma.com/api/mcp/asset/2bbd45d5-b6ef-44da-99c2-91c13ca68fac" alt="" />
+            <a class="reminders-plus-link" href="reminders.html" aria-label="Open reminders">
+              <img class="reminders-plus-icon" src="https://www.figma.com/api/mcp/asset/2bbd45d5-b6ef-44da-99c2-91c13ca68fac" alt="" />
+            </a>
           </div>
 
           <article class="reminder-item">
@@ -68,20 +72,22 @@
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Battery Check as done" aria-pressed="false"></button>
-            <img src="https://www.figma.com/api/mcp/asset/f82f53fd-ba34-4827-bd25-3ec8b8804839" alt="" />
+            <img src="assets/battery.png?v=20260428" alt="" />
             <span>Battery Check</span>
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Tire Rotation as done" aria-pressed="false"></button>
-            <img src="https://www.figma.com/api/mcp/asset/2ec649fa-ee5d-4d2e-b626-f9cb6a9c03a6" alt="" />
+            <img src="assets/warn.png?v=20260428" alt="" />
             <span>Tire Rotation</span>
           </article>
         </section>
 
-        <section class="services-card" aria-label="Recommended services by mileage">
+        <section class="services-card" aria-label="Services done">
           <div class="reminders-top-row">
-            <h1 class="services-card-title">Recommended Services By Mileage</h1>
-            <img class="reminders-plus-icon" src="https://www.figma.com/api/mcp/asset/2bbd45d5-b6ef-44da-99c2-91c13ca68fac" alt="" />
+            <h1 class="services-card-title">Services Done</h1>
+            <a class="reminders-plus-link" href="notepad.html" aria-label="Open notepad">
+              <img class="reminders-plus-icon" src="https://www.figma.com/api/mcp/asset/2bbd45d5-b6ef-44da-99c2-91c13ca68fac" alt="" />
+            </a>
           </div>
 
           <article class="reminder-item">
@@ -91,17 +97,20 @@
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Battery Check as done" aria-pressed="false"></button>
-            <img src="https://www.figma.com/api/mcp/asset/f82f53fd-ba34-4827-bd25-3ec8b8804839" alt="" />
+            <img src="assets/battery.png?v=20260428" alt="" />
             <span>Battery Check</span>
           </article>
           <article class="reminder-item">
             <button class="reminder-dot" type="button" aria-label="Mark Tire Rotation as done" aria-pressed="false"></button>
-            <img src="https://www.figma.com/api/mcp/asset/2ec649fa-ee5d-4d2e-b626-f9cb6a9c03a6" alt="" />
+            <img src="assets/warn.png?v=20260428" alt="" />
             <span>Tire Rotation</span>
           </article>
         </section>
       </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-guard.js"></script>
     <script src="page-transitions.js"></script>
     <script>
       document.querySelectorAll(".reminder-dot").forEach((dot) => {
