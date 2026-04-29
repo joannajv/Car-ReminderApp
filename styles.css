@@ -26,6 +26,7 @@ body {
   overflow: hidden;
   display: grid;
   place-items: center;
+  overscroll-behavior: none;
 }
 
 .screen {
@@ -664,6 +665,7 @@ body {
   display: block;
   background: transparent;
   --poster-color: transparent;
+  touch-action: none;
 }
 
 .home-car-viewer canvas {
