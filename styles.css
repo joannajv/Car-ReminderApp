@@ -21,7 +21,8 @@ body {
   font-family: "Cabin", Arial, sans-serif;
   background: #101114;
   color: #fff;
-  height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -36,6 +37,13 @@ body {
   margin: 0 auto;
   transform: scale(var(--app-scale));
   transform-origin: center center;
+}
+
+/* On phones, fill width like a native screen mockup. */
+@media (max-width: 900px) and (pointer: coarse) {
+  :root {
+    --app-scale: calc(100vw / var(--screen-width));
+  }
 }
 
 
