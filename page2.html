@@ -36,7 +36,7 @@
           <p class="mechanic-sheet-heading" id="mechanicName">Harvest Auto Center &amp; Express Lube</p>
           <a id="mechanicPhone" class="mechanic-phone-link" href="tel:8655222425">(865) 522-2425</a>
           <p id="mechanicAddress">2221 Cumberland Ave, Knoxville, TN 37916</p>
-          <p id="mechanicRating">Rating: 4.6</p>
+          <p id="mechanicRating"><strong>Rating:</strong> 4.6</p>
           <p id="mechanicPrice">$$</p>
         </div>
       </aside>
@@ -149,7 +149,7 @@
         mechanicPhone.textContent = shop.phone;
         mechanicPhone.href = `tel:${shop.phone.replace(/\D/g, "")}`;
         mechanicAddress.textContent = shop.address;
-        mechanicRating.textContent = `Rating: ${shop.rating}`;
+        mechanicRating.innerHTML = `<strong>Rating:</strong> ${shop.rating}`;
         mechanicPrice.textContent = shop.price;
         mechanicSheet.classList.add("is-open");
       }
@@ -171,7 +171,7 @@
 
         shops.forEach((shop) => {
           if (!shop.coords) return;
-          const marker = new mapboxgl.Marker({ color: "#3b82f6" })
+          const marker = new mapboxgl.Marker({ color: "#ef4444" })
             .setLngLat(shop.coords)
             .addTo(map);
 
