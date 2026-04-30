@@ -34,18 +34,6 @@
           </div>
         </div>
 
-        <div class="fig-time-block fig-time-block--second">
-          <p>Time</p>
-          <div class="fig-mini-pills">
-            <select class="fig-mini-input" aria-label="Hour"></select>
-            <select class="fig-mini-input" aria-label="Minute"></select>
-            <select class="fig-mini-input" aria-label="AM or PM">
-              <option value="AM">AM</option>
-              <option value="PM">PM</option>
-            </select>
-          </div>
-        </div>
-
         <a class="fig-save-pill" id="saveServiceBtn" href="notepad-2.html">Save</a>
         <p class="service-status" id="serviceStatus" aria-live="polite"></p>
       </section>
@@ -59,9 +47,6 @@
       const serviceMonthInput = document.querySelector('select[aria-label="Month"]');
       const serviceDayInput = document.querySelector('select[aria-label="Day"]');
       const serviceYearInput = document.querySelector('select[aria-label="Year"]');
-      const serviceHourInput = document.querySelector('select[aria-label="Hour"]');
-      const serviceMinuteInput = document.querySelector('select[aria-label="Minute"]');
-      const serviceAmPmInput = document.querySelector('select[aria-label="AM or PM"]');
       const serviceStatus = document.getElementById("serviceStatus");
       const pad2 = (value) => String(value).padStart(2, "0");
 
@@ -107,10 +92,7 @@
         if (
           !serviceMonthInput ||
           !serviceDayInput ||
-          !serviceYearInput ||
-          !serviceHourInput ||
-          !serviceMinuteInput ||
-          !serviceAmPmInput
+          !serviceYearInput
         ) {
           return;
         }
@@ -118,12 +100,9 @@
         const now = new Date();
         makeOptions(serviceMonthInput, 1, 12, true, "MM");
         makeOptions(serviceYearInput, now.getFullYear() - 2, now.getFullYear() + 3, false, "YYYY");
-        makeOptions(serviceHourInput, 1, 12, true, "HH");
-        makeOptions(serviceMinuteInput, 0, 59, true, "MM");
         serviceDayInput.innerHTML = "";
         addPlaceholderOption(serviceDayInput, "DD");
         syncServiceDayOptions();
-        serviceAmPmInput.value = "AM";
 
         serviceMonthInput.addEventListener("change", syncServiceDayOptions);
         serviceYearInput.addEventListener("change", syncServiceDayOptions);
@@ -151,7 +130,7 @@
 
         const text = serviceTextInput?.value.trim() || "Untitled service";
         const dateText = `${pad2(serviceMonthInput?.value || "--")}/${pad2(serviceDayInput?.value || "--")}/${serviceYearInput?.value || "----"}`;
-        const timeText = `${pad2(serviceHourInput?.value || "--")}:${pad2(serviceMinuteInput?.value || "--")} ${serviceAmPmInput?.value || "AM"}`;
+        const timeText = "N/A";
 
         saveServiceBtn.classList.add("is-disabled");
         saveServiceBtn.setAttribute("aria-disabled", "true");

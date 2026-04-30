@@ -627,7 +627,6 @@ body {
   height: 43px;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.25));
 }
 
 .home-menu-hamburger {
@@ -2158,7 +2157,6 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   width: 111px;
   height: 111px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
 }
 
 .settings-profile-card {
