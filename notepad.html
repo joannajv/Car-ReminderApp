@@ -28,17 +28,17 @@
         <div class="fig-time-block">
           <p>Date</p>
           <div class="fig-mini-pills">
-            <input class="fig-mini-input" type="number" min="1" max="12" placeholder="MM" aria-label="Month" />
-            <input class="fig-mini-input" type="number" min="1" max="31" placeholder="DD" aria-label="Day" />
-            <input class="fig-mini-input" type="number" min="2024" max="2099" placeholder="YYYY" aria-label="Year" />
+            <select class="fig-mini-input" aria-label="Month"></select>
+            <select class="fig-mini-input" aria-label="Day"></select>
+            <select class="fig-mini-input" aria-label="Year"></select>
           </div>
         </div>
 
         <div class="fig-time-block fig-time-block--second">
           <p>Time</p>
           <div class="fig-mini-pills">
-            <input class="fig-mini-input" type="number" min="1" max="12" placeholder="HH" aria-label="Hour" />
-            <input class="fig-mini-input" type="number" min="0" max="59" placeholder="MM" aria-label="Minute" />
+            <select class="fig-mini-input" aria-label="Hour"></select>
+            <select class="fig-mini-input" aria-label="Minute"></select>
             <select class="fig-mini-input" aria-label="AM or PM">
               <option value="AM">AM</option>
               <option value="PM">PM</option>
@@ -56,13 +56,74 @@
     <script>
       const saveServiceBtn = document.getElementById("saveServiceBtn");
       const serviceTextInput = document.getElementById("serviceTextInput");
-      const serviceMonthInput = document.querySelector('input[aria-label="Month"]');
-      const serviceDayInput = document.querySelector('input[aria-label="Day"]');
-      const serviceYearInput = document.querySelector('input[aria-label="Year"]');
-      const serviceHourInput = document.querySelector('input[aria-label="Hour"]');
-      const serviceMinuteInput = document.querySelector('input[aria-label="Minute"]');
+      const serviceMonthInput = document.querySelector('select[aria-label="Month"]');
+      const serviceDayInput = document.querySelector('select[aria-label="Day"]');
+      const serviceYearInput = document.querySelector('select[aria-label="Year"]');
+      const serviceHourInput = document.querySelector('select[aria-label="Hour"]');
+      const serviceMinuteInput = document.querySelector('select[aria-label="Minute"]');
       const serviceAmPmInput = document.querySelector('select[aria-label="AM or PM"]');
       const serviceStatus = document.getElementById("serviceStatus");
+      const pad2 = (value) => String(value).padStart(2, "0");
+
+      const makeOptions = (selectEl, start, end, pad = false) => {
+        if (!selectEl) return;
+        selectEl.innerHTML = "";
+        for (let i = start; i <= end; i += 1) {
+          const option = document.createElement("option");
+          option.value = String(i);
+          option.textContent = pad ? pad2(i) : String(i);
+          selectEl.appendChild(option);
+        }
+      };
+
+      const syncServiceDayOptions = () => {
+        if (!serviceMonthInput || !serviceDayInput || !serviceYearInput) return;
+        const month = Number(serviceMonthInput.value);
+        const year = Number(serviceYearInput.value);
+        if (!month || !year) return;
+        const maxDays = new Date(year, month, 0).getDate();
+        const previousDay = Number(serviceDayInput.value || 1);
+        makeOptions(serviceDayInput, 1, maxDays, true);
+        serviceDayInput.value = String(Math.min(previousDay, maxDays));
+      };
+
+      const initializeServicePickers = () => {
+        if (
+          !serviceMonthInput ||
+          !serviceDayInput ||
+          !serviceYearInput ||
+          !serviceHourInput ||
+          !serviceMinuteInput ||
+          !serviceAmPmInput
+        ) {
+          return;
+        }
+
+        const now = new Date();
+        now.setSeconds(0, 0);
+
+        makeOptions(serviceMonthInput, 1, 12, true);
+        makeOptions(serviceYearInput, now.getFullYear() - 2, now.getFullYear() + 3);
+        makeOptions(serviceHourInput, 1, 12, true);
+        makeOptions(serviceMinuteInput, 0, 59, true);
+
+        serviceMonthInput.value = String(now.getMonth() + 1);
+        serviceYearInput.value = String(now.getFullYear());
+        syncServiceDayOptions();
+        serviceDayInput.value = String(now.getDate());
+
+        let hour = now.getHours();
+        const amPm = hour >= 12 ? "PM" : "AM";
+        hour = hour % 12 || 12;
+        serviceHourInput.value = String(hour);
+        serviceMinuteInput.value = String(now.getMinutes());
+        serviceAmPmInput.value = amPm;
+
+        serviceMonthInput.addEventListener("change", syncServiceDayOptions);
+        serviceYearInput.addEventListener("change", syncServiceDayOptions);
+      };
+
+      initializeServicePickers();
 
       saveServiceBtn?.addEventListener("click", async (event) => {
         event.preventDefault();
@@ -83,8 +144,8 @@
         }
 
         const text = serviceTextInput?.value.trim() || "Untitled service";
-        const dateText = `${serviceMonthInput?.value || "--"}/${serviceDayInput?.value || "--"}/${serviceYearInput?.value || "----"}`;
-        const timeText = `${serviceHourInput?.value || "--"}:${serviceMinuteInput?.value || "--"} ${serviceAmPmInput?.value || "AM"}`;
+        const dateText = `${pad2(serviceMonthInput?.value || "--")}/${pad2(serviceDayInput?.value || "--")}/${serviceYearInput?.value || "----"}`;
+        const timeText = `${pad2(serviceHourInput?.value || "--")}:${pad2(serviceMinuteInput?.value || "--")} ${serviceAmPmInput?.value || "AM"}`;
 
         saveServiceBtn.classList.add("is-disabled");
         saveServiceBtn.setAttribute("aria-disabled", "true");

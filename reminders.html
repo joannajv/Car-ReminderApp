@@ -28,17 +28,17 @@
         <div class="fig-time-block">
           <p>Date</p>
           <div class="fig-mini-pills">
-            <input class="fig-mini-input" type="number" min="1" max="12" placeholder="MM" aria-label="Month" />
-            <input class="fig-mini-input" type="number" min="1" max="31" placeholder="DD" aria-label="Day" />
-            <input class="fig-mini-input" type="number" min="2024" max="2099" placeholder="YYYY" aria-label="Year" />
+            <select class="fig-mini-input" aria-label="Month"></select>
+            <select class="fig-mini-input" aria-label="Day"></select>
+            <select class="fig-mini-input" aria-label="Year"></select>
           </div>
         </div>
 
         <div class="fig-time-block fig-time-block--second">
           <p>Time</p>
           <div class="fig-mini-pills">
-            <input class="fig-mini-input" type="number" min="1" max="12" placeholder="HH" aria-label="Hour" />
-            <input class="fig-mini-input" type="number" min="0" max="59" placeholder="MM" aria-label="Minute" />
+            <select class="fig-mini-input" aria-label="Hour"></select>
+            <select class="fig-mini-input" aria-label="Minute"></select>
             <select class="fig-mini-input" aria-label="AM or PM">
               <option value="AM">AM</option>
               <option value="PM">PM</option>
@@ -56,15 +56,68 @@
     <script>
       const saveReminderBtn = document.getElementById("saveReminderBtn");
       const reminderTextInput = document.getElementById("reminderTextInput");
-      const monthInput = document.querySelector('input[aria-label="Month"]');
-      const dayInput = document.querySelector('input[aria-label="Day"]');
-      const yearInput = document.querySelector('input[aria-label="Year"]');
-      const hourInput = document.querySelector('input[aria-label="Hour"]');
-      const minuteInput = document.querySelector('input[aria-label="Minute"]');
+      const monthInput = document.querySelector('select[aria-label="Month"]');
+      const dayInput = document.querySelector('select[aria-label="Day"]');
+      const yearInput = document.querySelector('select[aria-label="Year"]');
+      const hourInput = document.querySelector('select[aria-label="Hour"]');
+      const minuteInput = document.querySelector('select[aria-label="Minute"]');
       const amPmInput = document.querySelector('select[aria-label="AM or PM"]');
       const reminderStatus = document.getElementById("reminderStatus");
 
       const pad2 = (value) => String(value).padStart(2, "0");
+
+      const makeOptions = (selectEl, start, end, pad = false) => {
+        if (!selectEl) return;
+        selectEl.innerHTML = "";
+        for (let i = start; i <= end; i += 1) {
+          const option = document.createElement("option");
+          option.value = String(i);
+          option.textContent = pad ? pad2(i) : String(i);
+          selectEl.appendChild(option);
+        }
+      };
+
+      const syncDayOptions = () => {
+        if (!monthInput || !dayInput || !yearInput) return;
+        const month = Number(monthInput.value);
+        const year = Number(yearInput.value);
+        if (!month || !year) return;
+
+        const maxDays = new Date(year, month, 0).getDate();
+        const previousDay = Number(dayInput.value || 1);
+        makeOptions(dayInput, 1, maxDays, true);
+        dayInput.value = String(Math.min(previousDay, maxDays));
+      };
+
+      const initializeReminderPickers = () => {
+        if (!monthInput || !dayInput || !yearInput || !hourInput || !minuteInput || !amPmInput) return;
+
+        const now = new Date();
+        const suggested = new Date(now.getTime() + 5 * 60 * 1000);
+        suggested.setSeconds(0, 0);
+
+        makeOptions(monthInput, 1, 12, true);
+        makeOptions(yearInput, now.getFullYear(), now.getFullYear() + 3);
+        makeOptions(hourInput, 1, 12, true);
+        makeOptions(minuteInput, 0, 59, true);
+
+        monthInput.value = String(suggested.getMonth() + 1);
+        yearInput.value = String(suggested.getFullYear());
+        syncDayOptions();
+        dayInput.value = String(suggested.getDate());
+
+        let suggestedHour = suggested.getHours();
+        const amPm = suggestedHour >= 12 ? "PM" : "AM";
+        suggestedHour = suggestedHour % 12 || 12;
+        hourInput.value = String(suggestedHour);
+        minuteInput.value = String(suggested.getMinutes());
+        amPmInput.value = amPm;
+
+        monthInput.addEventListener("change", syncDayOptions);
+        yearInput.addEventListener("change", syncDayOptions);
+      };
+
+      initializeReminderPickers();
 
       const toNotifyAtIso = () => {
         const month = Number(monthInput?.value || "");
@@ -104,6 +157,9 @@
         ) {
           return null;
         }
+        if (localDate.getTime() <= Date.now()) {
+          return "PAST";
+        }
         return localDate.toISOString();
       };
 
@@ -133,6 +189,11 @@
           const notifyAtIso = toNotifyAtIso();
           if (!notifyAtIso) {
             reminderStatus.textContent = "Enter a valid date and time to schedule this reminder.";
+            reminderStatus.classList.add("is-error");
+            return;
+          }
+          if (notifyAtIso === "PAST") {
+            reminderStatus.textContent = "Reminder time must be in the future.";
             reminderStatus.classList.add("is-error");
             return;
           }
