@@ -40,10 +40,14 @@ body {
   transform-origin: center center;
 }
 
-/* On phones, fill width like a native screen mockup. */
+/* On phones, scale so the full frame fits the dynamic viewport; width-only scale
+   clips the bottom (e.g. Services Done) when 932×scale exceeds the screen. */
 @media (max-width: 900px) and (pointer: coarse) {
   :root {
-    --app-scale: calc(100vw / var(--screen-width));
+    --app-scale: min(
+      calc(100vw / var(--screen-width)),
+      calc(100dvh / var(--screen-height))
+    );
   }
 }
 
@@ -599,7 +603,7 @@ body {
 
 /* Homepage — Figma frame 61:25 (430×932) */
 .homepage-scroll-stack {
-  padding: 21px 0 48px;
+  padding: 21px 0 calc(48px + env(safe-area-inset-bottom, 0px));
   min-height: min-content;
 }
 
