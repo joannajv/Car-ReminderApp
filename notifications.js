@@ -115,7 +115,28 @@
   const sendTestNotification = async () => {
     if (!window.carDemoSupabase) throw new Error("Supabase client not available.");
     const { error } = await window.carDemoSupabase.functions.invoke("send-test-notification");
-    if (error) throw error;
+    if (!error) return;
+
+    // Supabase can return a generic message for non-2xx responses.
+    // Try to read the function response body for the real backend reason.
+    const response = error?.context;
+    if (response && typeof response.clone === "function") {
+      try {
+        const body = await response.clone().json();
+        if (body?.error) {
+          throw new Error(String(body.error));
+        }
+      } catch {
+        try {
+          const text = await response.clone().text();
+          if (text) throw new Error(text);
+        } catch {
+          // Fall through to generic error.
+        }
+      }
+    }
+
+    throw new Error(error?.message || "Could not send test notification.");
   };
 
   window.carDemoNotifications = {
