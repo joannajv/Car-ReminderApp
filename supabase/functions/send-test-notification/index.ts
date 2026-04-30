@@ -33,6 +33,14 @@ Deno.serve(async (req) => {
     const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
     const vapidSubject = Deno.env.get("VAPID_SUBJECT");
     if (!supabaseUrl || !serviceRoleKey || !anonKey || !vapidPublicKey || !vapidPrivateKey || !vapidSubject) {
+      console.error("Missing env vars", {
+        hasSupabaseUrl: Boolean(supabaseUrl),
+        hasServiceRoleKey: Boolean(serviceRoleKey),
+        hasAnonKey: Boolean(anonKey),
+        hasVapidPublicKey: Boolean(vapidPublicKey),
+        hasVapidPrivateKey: Boolean(vapidPrivateKey),
+        hasVapidSubject: Boolean(vapidSubject),
+      });
       return json(500, {
         error:
           "Missing required env vars. Need SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, CAR_DEMO_SUPABASE_ANON_KEY (or SUPABASE_ANON_KEY), VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.",
@@ -51,6 +59,7 @@ Deno.serve(async (req) => {
       error: userError,
     } = await userClient.auth.getUser();
     if (userError || !user) {
+      console.error("Auth getUser failed", { userError: userError?.message || null });
       return json(401, { error: "Unauthorized." });
     }
 
@@ -60,9 +69,11 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .eq("enabled", true);
     if (subError) {
+      console.error("Subscription query failed", { subError: subError.message });
       return json(500, { error: subError.message });
     }
     if (!subscriptions?.length) {
+      console.warn("No active subscriptions for user", { userId: user.id });
       return json(400, { error: "No active push subscriptions for user." });
     }
 
@@ -88,6 +99,11 @@ Deno.serve(async (req) => {
         );
         sent += 1;
       } catch (error) {
+        console.error("Push send failed", {
+          endpoint: row.endpoint,
+          statusCode: (error as { statusCode?: number })?.statusCode || null,
+          message: (error as { message?: string })?.message || "unknown",
+        });
         const statusCode = Number((error as { statusCode?: number })?.statusCode || 0);
         if (statusCode === 404 || statusCode === 410) {
           await adminClient
@@ -107,6 +123,7 @@ Deno.serve(async (req) => {
       body: `Sent ${sent}/${activeSubscriptions.length} test push payload(s). Disabled ${disabled} expired subscription(s).`,
     });
     if (logError) {
+      console.error("Dispatch log insert failed", { logError: logError.message });
       return json(500, { error: logError.message });
     }
 
@@ -118,6 +135,7 @@ Deno.serve(async (req) => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unexpected error.";
+    console.error("Unhandled error", { message });
     return json(500, { error: message });
   }
 });
