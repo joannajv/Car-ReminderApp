@@ -71,6 +71,7 @@
       const settingsModel = document.getElementById("settingsModel");
       const settingsSaveBtn = document.getElementById("settingsSaveBtn");
       const settingsEnableNotifyBtn = document.getElementById("settingsEnableNotifyBtn");
+      const settingsEnableNotifyIcon = settingsEnableNotifyBtn?.querySelector(".settings-action-btn-icon");
       const settingsEnableNotifyLabel = settingsEnableNotifyBtn?.querySelector("span");
       const settingsLogoutBtn = document.getElementById("settingsLogoutBtn");
       const settingsStatus = document.getElementById("settingsStatus");
@@ -115,6 +116,11 @@
         if (!settingsEnableNotifyBtn || !settingsEnableNotifyLabel) return;
         settingsEnableNotifyBtn.dataset.enabled = isEnabled ? "true" : "false";
         settingsEnableNotifyLabel.textContent = isEnabled ? "Disable Notifications" : "Enable Notifications";
+        if (settingsEnableNotifyIcon) {
+          settingsEnableNotifyIcon.src = isEnabled
+            ? "assets/notif.png?v=20260430"
+            : "assets/notfion.png?v=20260430";
+        }
       };
 
       const detectNotifyEnabled = async () => {
@@ -179,19 +185,23 @@
 
       settingsEnableNotifyBtn?.addEventListener("click", async () => {
         const isEnabled = settingsEnableNotifyBtn.dataset.enabled === "true";
+        const nextState = !isEnabled;
+        setNotifyButtonState(nextState);
+        settingsEnableNotifyBtn.disabled = true;
         setSettingsStatus(isEnabled ? "Disabling notifications..." : "Enabling notifications...");
         try {
           if (isEnabled) {
             await window.carDemoNotifications?.disablePushSubscription();
-            setNotifyButtonState(false);
             setSettingsStatus("Notifications disabled for this device.");
           } else {
             await window.carDemoNotifications?.ensurePushSubscription();
-            setNotifyButtonState(true);
             setSettingsStatus("Notifications enabled for this device.");
           }
         } catch (error) {
+          setNotifyButtonState(isEnabled);
           setSettingsStatus(error?.message || "Could not enable notifications.", true);
+        } finally {
+          settingsEnableNotifyBtn.disabled = false;
         }
       });
 

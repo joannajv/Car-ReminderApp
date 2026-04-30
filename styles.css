@@ -1633,6 +1633,10 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   height: 418px;
 }
 
+.fig-sheet--notepad {
+  height: 318px;
+}
+
 .fig-sheet--dynamic-reminders {
   height: auto;
   min-height: 220px;
@@ -1794,6 +1798,10 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   justify-content: center;
   font-size: 15px;
   font-weight: 700;
+}
+
+.fig-save-pill--notepad {
+  bottom: 15px;
 }
 
 .fig-sheet--recent .fig-sheet-head h1,
