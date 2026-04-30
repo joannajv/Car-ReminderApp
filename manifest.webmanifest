@@ -1,0 +1,23 @@
+{
+  "name": "Car Buddy",
+  "short_name": "Car Buddy",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#d0d0d0",
+  "theme_color": "#374957",
+  "icons": [
+    {
+      "src": "/assets/blob.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/blob.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

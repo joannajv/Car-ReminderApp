@@ -2253,14 +2253,22 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   top: 577px;
 }
 
+.settings-action-btn--notify {
+  top: 633px;
+}
+
+.settings-action-btn--notify-test {
+  top: 689px;
+}
+
 .settings-action-btn--logout {
-  top: 653px;
+  top: 745px;
 }
 
 .settings-status {
   position: absolute;
   left: 64px;
-  top: 708px;
+  top: 803px;
   width: 301px;
   text-align: center;
 }

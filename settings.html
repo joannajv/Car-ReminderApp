@@ -3,6 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#374957" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Car Buddy" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/blob.png" />
     <title>Car App - Settings</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -46,11 +52,14 @@
       </section>
 
       <button class="settings-action-btn" id="settingsSaveBtn" type="button">Save Information</button>
+      <button class="settings-action-btn settings-action-btn--notify" id="settingsEnableNotifyBtn" type="button">Enable Phone Notifications</button>
+      <button class="settings-action-btn settings-action-btn--notify-test" id="settingsTestNotifyBtn" type="button">Send Test Notification</button>
       <button class="settings-action-btn settings-action-btn--logout" id="settingsLogoutBtn" type="button">Log Out</button>
       <p class="auth-status settings-status" id="settingsStatus" aria-live="polite"></p>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="notifications.js"></script>
     <script src="auth-guard.js"></script>
     <script>
       const settingsName = document.getElementById("settingsName");
@@ -59,6 +68,8 @@
       const settingsMake = document.getElementById("settingsMake");
       const settingsModel = document.getElementById("settingsModel");
       const settingsSaveBtn = document.getElementById("settingsSaveBtn");
+      const settingsEnableNotifyBtn = document.getElementById("settingsEnableNotifyBtn");
+      const settingsTestNotifyBtn = document.getElementById("settingsTestNotifyBtn");
       const settingsLogoutBtn = document.getElementById("settingsLogoutBtn");
       const settingsStatus = document.getElementById("settingsStatus");
       const carOptions = [
@@ -144,6 +155,26 @@
 
       settingsLogoutBtn?.addEventListener("click", async () => {
         await window.signOutCarDemo("login.html");
+      });
+
+      settingsEnableNotifyBtn?.addEventListener("click", async () => {
+        setSettingsStatus("Enabling notifications...");
+        try {
+          await window.carDemoNotifications?.ensurePushSubscription();
+          setSettingsStatus("Notifications enabled for this device.");
+        } catch (error) {
+          setSettingsStatus(error?.message || "Could not enable notifications.", true);
+        }
+      });
+
+      settingsTestNotifyBtn?.addEventListener("click", async () => {
+        setSettingsStatus("Sending test notification...");
+        try {
+          await window.carDemoNotifications?.sendTestNotification();
+          setSettingsStatus("Test notification queued.");
+        } catch (error) {
+          setSettingsStatus(error?.message || "Could not send test notification.", true);
+        }
       });
     </script>
     <script src="page-transitions.js"></script>

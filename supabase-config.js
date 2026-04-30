@@ -3,6 +3,8 @@ window.CAR_DEMO_SUPABASE_URL =
   window.CAR_DEMO_SUPABASE_URL || "https://ifepjgsbqapaqvbhwusv.supabase.co";
 window.CAR_DEMO_SUPABASE_ANON_KEY =
   window.CAR_DEMO_SUPABASE_ANON_KEY || "sb_publishable_MIgv8jTsSSYjKvdLuI1viw_vEW55pmb";
+window.CAR_DEMO_VAPID_PUBLIC_KEY =
+  window.CAR_DEMO_VAPID_PUBLIC_KEY || "BDnT-tX6b0_imlKp8K740BtTYfUegI18aiAW9us1ssa7Un-Gbn2VQOlyQXld8TM7CdaWukScdpWLdq2W0Vdm02I";
 
 (function initSupabase() {
   const isConfigured =
