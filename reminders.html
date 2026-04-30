@@ -64,6 +64,49 @@
       const amPmInput = document.querySelector('select[aria-label="AM or PM"]');
       const reminderStatus = document.getElementById("reminderStatus");
 
+      const pad2 = (value) => String(value).padStart(2, "0");
+
+      const toNotifyAtIso = () => {
+        const month = Number(monthInput?.value || "");
+        const day = Number(dayInput?.value || "");
+        const year = Number(yearInput?.value || "");
+        const hour12 = Number(hourInput?.value || "");
+        const minute = Number(minuteInput?.value || "");
+        const amPm = (amPmInput?.value || "AM").toUpperCase();
+
+        if (
+          !Number.isInteger(month) ||
+          !Number.isInteger(day) ||
+          !Number.isInteger(year) ||
+          !Number.isInteger(hour12) ||
+          !Number.isInteger(minute) ||
+          month < 1 ||
+          month > 12 ||
+          day < 1 ||
+          day > 31 ||
+          year < 2024 ||
+          year > 2099 ||
+          hour12 < 1 ||
+          hour12 > 12 ||
+          minute < 0 ||
+          minute > 59
+        ) {
+          return null;
+        }
+
+        const hour24 = (hour12 % 12) + (amPm === "PM" ? 12 : 0);
+        const localDate = new Date(year, month - 1, day, hour24, minute, 0, 0);
+        if (Number.isNaN(localDate.getTime())) return null;
+        if (
+          localDate.getFullYear() !== year ||
+          localDate.getMonth() !== month - 1 ||
+          localDate.getDate() !== day
+        ) {
+          return null;
+        }
+        return localDate.toISOString();
+      };
+
       if (saveReminderBtn && reminderTextInput) {
         saveReminderBtn.addEventListener("click", async (event) => {
           event.preventDefault();
@@ -85,14 +128,21 @@
           saveReminderBtn.textContent = "Saving...";
 
           const reminderText = reminderTextInput.value.trim() || "Untitled reminder";
-          const dateText = `${monthInput?.value || "--"}/${dayInput?.value || "--"}/${yearInput?.value || "----"}`;
-          const timeText = `${hourInput?.value || "--"}:${minuteInput?.value || "--"} ${amPmInput?.value || "AM"}`;
+          const dateText = `${pad2(monthInput?.value || "--")}/${pad2(dayInput?.value || "--")}/${yearInput?.value || "----"}`;
+          const timeText = `${pad2(hourInput?.value || "--")}:${pad2(minuteInput?.value || "--")} ${amPmInput?.value || "AM"}`;
+          const notifyAtIso = toNotifyAtIso();
+          if (!notifyAtIso) {
+            reminderStatus.textContent = "Enter a valid date and time to schedule this reminder.";
+            reminderStatus.classList.add("is-error");
+            return;
+          }
 
           const { error } = await window.carDemoSupabase.from("reminders").insert({
             user_id: session.user.id,
             text: reminderText,
             date_text: dateText,
             time_text: timeText,
+            notify_at: notifyAtIso,
           });
 
           saveReminderBtn.classList.remove("is-disabled");

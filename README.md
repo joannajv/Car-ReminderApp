@@ -48,7 +48,22 @@ Edge functions now perform real Web Push send with VAPID keys:
 
 Create a Supabase scheduled job to call `send-due-reminders` every minute.
 
-To make scheduling reliable, set `reminders.notify_at` when creating reminders.
+To make scheduling reliable, reminders now save a real `notify_at` timestamp from the Reminder form.
+
+#### Scheduler setup (Dashboard)
+
+1. Go to Supabase Dashboard → your project → **Functions** → **send-due-reminders**.
+2. Copy function URL:
+   `https://<project-ref>.supabase.co/functions/v1/send-due-reminders`
+3. Open **Scheduler / Cron** in Supabase dashboard.
+4. Create a job:
+   - Name: `send-due-reminders-every-minute`
+   - Schedule: `* * * * *`
+   - Method: `POST`
+   - URL: the function URL above
+5. Save and enable the job.
+
+You can also trigger once manually by sending a POST to the same function URL.
 
 ### iPhone saved-to-home-screen behavior
 

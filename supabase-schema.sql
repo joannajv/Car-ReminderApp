@@ -48,6 +48,7 @@ alter table public.reminders add column if not exists completed boolean not null
 alter table public.services_done add column if not exists completed boolean not null default false;
 alter table public.reminders add column if not exists notify_at timestamptz;
 alter table public.reminders add column if not exists notified_at timestamptz;
+create index if not exists reminders_due_idx on public.reminders (notify_at) where notified_at is null and completed = false;
 
 alter table public.reminders enable row level security;
 alter table public.services_done enable row level security;
