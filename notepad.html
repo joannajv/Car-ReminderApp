@@ -65,9 +65,19 @@
       const serviceStatus = document.getElementById("serviceStatus");
       const pad2 = (value) => String(value).padStart(2, "0");
 
-      const makeOptions = (selectEl, start, end, pad = false) => {
+      const addPlaceholderOption = (selectEl, label) => {
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = label;
+        selectEl.appendChild(option);
+      };
+
+      const makeOptions = (selectEl, start, end, pad = false, placeholderLabel = "") => {
         if (!selectEl) return;
         selectEl.innerHTML = "";
+        if (placeholderLabel) {
+          addPlaceholderOption(selectEl, placeholderLabel);
+        }
         for (let i = start; i <= end; i += 1) {
           const option = document.createElement("option");
           option.value = String(i);
@@ -80,11 +90,17 @@
         if (!serviceMonthInput || !serviceDayInput || !serviceYearInput) return;
         const month = Number(serviceMonthInput.value);
         const year = Number(serviceYearInput.value);
-        if (!month || !year) return;
+        if (!month || !year) {
+          serviceDayInput.innerHTML = "";
+          addPlaceholderOption(serviceDayInput, "DD");
+          return;
+        }
         const maxDays = new Date(year, month, 0).getDate();
-        const previousDay = Number(serviceDayInput.value || 1);
-        makeOptions(serviceDayInput, 1, maxDays, true);
-        serviceDayInput.value = String(Math.min(previousDay, maxDays));
+        const previousDay = Number(serviceDayInput.value || 0);
+        makeOptions(serviceDayInput, 1, maxDays, true, "DD");
+        if (previousDay >= 1 && previousDay <= maxDays) {
+          serviceDayInput.value = String(previousDay);
+        }
       };
 
       const initializeServicePickers = () => {
@@ -100,24 +116,14 @@
         }
 
         const now = new Date();
-        now.setSeconds(0, 0);
-
-        makeOptions(serviceMonthInput, 1, 12, true);
-        makeOptions(serviceYearInput, now.getFullYear() - 2, now.getFullYear() + 3);
-        makeOptions(serviceHourInput, 1, 12, true);
-        makeOptions(serviceMinuteInput, 0, 59, true);
-
-        serviceMonthInput.value = String(now.getMonth() + 1);
-        serviceYearInput.value = String(now.getFullYear());
+        makeOptions(serviceMonthInput, 1, 12, true, "MM");
+        makeOptions(serviceYearInput, now.getFullYear() - 2, now.getFullYear() + 3, false, "YYYY");
+        makeOptions(serviceHourInput, 1, 12, true, "HH");
+        makeOptions(serviceMinuteInput, 0, 59, true, "MM");
+        serviceDayInput.innerHTML = "";
+        addPlaceholderOption(serviceDayInput, "DD");
         syncServiceDayOptions();
-        serviceDayInput.value = String(now.getDate());
-
-        let hour = now.getHours();
-        const amPm = hour >= 12 ? "PM" : "AM";
-        hour = hour % 12 || 12;
-        serviceHourInput.value = String(hour);
-        serviceMinuteInput.value = String(now.getMinutes());
-        serviceAmPmInput.value = amPm;
+        serviceAmPmInput.value = "AM";
 
         serviceMonthInput.addEventListener("change", syncServiceDayOptions);
         serviceYearInput.addEventListener("change", syncServiceDayOptions);
