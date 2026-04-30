@@ -41,6 +41,8 @@ Edge functions now perform real Web Push send with VAPID keys:
 
 - Dead endpoints (HTTP 404/410) are automatically disabled.
 - Delivery attempts are logged in `notification_dispatch_log`.
+- If your Supabase dashboard blocks `SUPABASE_*` secret names, set
+  `CAR_DEMO_SUPABASE_ANON_KEY` instead (the function supports this alias).
 
 ### 5) Schedule due reminders
 

@@ -28,12 +28,15 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const anonKey = Deno.env.get("CAR_DEMO_SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_ANON_KEY");
     const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
     const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
     const vapidSubject = Deno.env.get("VAPID_SUBJECT");
     if (!supabaseUrl || !serviceRoleKey || !anonKey || !vapidPublicKey || !vapidPrivateKey || !vapidSubject) {
-      return json(500, { error: "Missing required Supabase env vars." });
+      return json(500, {
+        error:
+          "Missing required env vars. Need SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, CAR_DEMO_SUPABASE_ANON_KEY (or SUPABASE_ANON_KEY), VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.",
+      });
     }
     webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
