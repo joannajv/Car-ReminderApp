@@ -53,7 +53,6 @@
 
       <button class="settings-action-btn" id="settingsSaveBtn" type="button">Save Information</button>
       <button class="settings-action-btn settings-action-btn--notify" id="settingsEnableNotifyBtn" type="button">Enable Phone Notifications</button>
-      <button class="settings-action-btn settings-action-btn--notify-test" id="settingsTestNotifyBtn" type="button">Send Test Notification</button>
       <button class="settings-action-btn settings-action-btn--logout" id="settingsLogoutBtn" type="button">Log Out</button>
       <p class="auth-status settings-status" id="settingsStatus" aria-live="polite"></p>
     </main>
@@ -69,7 +68,6 @@
       const settingsModel = document.getElementById("settingsModel");
       const settingsSaveBtn = document.getElementById("settingsSaveBtn");
       const settingsEnableNotifyBtn = document.getElementById("settingsEnableNotifyBtn");
-      const settingsTestNotifyBtn = document.getElementById("settingsTestNotifyBtn");
       const settingsLogoutBtn = document.getElementById("settingsLogoutBtn");
       const settingsStatus = document.getElementById("settingsStatus");
       const carOptions = [
@@ -167,15 +165,6 @@
         }
       });
 
-      settingsTestNotifyBtn?.addEventListener("click", async () => {
-        setSettingsStatus("Sending test notification...");
-        try {
-          await window.carDemoNotifications?.sendTestNotification();
-          setSettingsStatus("Test notification queued.");
-        } catch (error) {
-          setSettingsStatus(error?.message || "Could not send test notification.", true);
-        }
-      });
     </script>
     <script src="page-transitions.js"></script>
   </body>
