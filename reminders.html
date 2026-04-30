@@ -65,6 +65,11 @@
       const reminderStatus = document.getElementById("reminderStatus");
 
       const pad2 = (value) => String(value).padStart(2, "0");
+      const formatPart = (value, fallback = "--") => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) return fallback;
+        return pad2(numeric);
+      };
 
       const addPlaceholderOption = (selectEl, label) => {
         const option = document.createElement("option");
@@ -90,8 +95,9 @@
       const syncDayOptions = () => {
         if (!monthInput || !dayInput || !yearInput) return;
         const month = Number(monthInput.value);
-        const year = Number(yearInput.value);
-        if (!month || !year) {
+        const fallbackYear = new Date().getFullYear();
+        const year = Number(yearInput.value) || fallbackYear;
+        if (!month) {
           dayInput.innerHTML = "";
           addPlaceholderOption(dayInput, "DD");
           return;
@@ -171,6 +177,18 @@
       if (saveReminderBtn && reminderTextInput) {
         saveReminderBtn.addEventListener("click", async (event) => {
           event.preventDefault();
+          const setSavingState = (saving, label = "Save") => {
+            saveReminderBtn.classList.toggle("is-disabled", saving);
+            if (saving) {
+              saveReminderBtn.setAttribute("aria-disabled", "true");
+              saveReminderBtn.textContent = "Saving...";
+            } else {
+              saveReminderBtn.removeAttribute("aria-disabled");
+              saveReminderBtn.textContent = label;
+            }
+          };
+
+          const previousLabel = saveReminderBtn.textContent;
           if (!window.carDemoSupabase) {
             reminderStatus.textContent = "Supabase is not configured.";
             reminderStatus.classList.add("is-error");
@@ -183,14 +201,9 @@
             return;
           }
 
-          saveReminderBtn.classList.add("is-disabled");
-          saveReminderBtn.setAttribute("aria-disabled", "true");
-          const prevLabel = saveReminderBtn.textContent;
-          saveReminderBtn.textContent = "Saving...";
-
           const reminderText = reminderTextInput.value.trim() || "Untitled reminder";
-          const dateText = `${pad2(monthInput?.value || "--")}/${pad2(dayInput?.value || "--")}/${yearInput?.value || "----"}`;
-          const timeText = `${pad2(hourInput?.value || "--")}:${pad2(minuteInput?.value || "--")} ${amPmInput?.value || "AM"}`;
+          const dateText = `${formatPart(monthInput?.value)}/${formatPart(dayInput?.value)}/${yearInput?.value || "----"}`;
+          const timeText = `${formatPart(hourInput?.value)}:${formatPart(minuteInput?.value)} ${amPmInput?.value || "AM"}`;
           const notifyAtIso = toNotifyAtIso();
           if (!notifyAtIso) {
             reminderStatus.textContent = "Enter a valid date and time to schedule this reminder.";
@@ -203,31 +216,37 @@
             return;
           }
 
-          const { error } = await window.carDemoSupabase.from("reminders").insert({
-            user_id: session.user.id,
-            text: reminderText,
-            date_text: dateText,
-            time_text: timeText,
-            notify_at: notifyAtIso,
-          });
+          setSavingState(true, previousLabel);
+          try {
+            const { error } = await window.carDemoSupabase.from("reminders").insert({
+              user_id: session.user.id,
+              text: reminderText,
+              date_text: dateText,
+              time_text: timeText,
+              notify_at: notifyAtIso,
+            });
 
-          saveReminderBtn.classList.remove("is-disabled");
-          saveReminderBtn.removeAttribute("aria-disabled");
-          saveReminderBtn.textContent = prevLabel;
+            if (error) {
+              window.carDemoToast?.(`Could not save: ${error.message}`, { isError: true });
+              reminderStatus.textContent = `Could not save: ${error.message}`;
+              reminderStatus.classList.add("is-error");
+              return;
+            }
 
-          if (error) {
-            window.carDemoToast?.(`Could not save: ${error.message}`, { isError: true });
-            reminderStatus.textContent = `Could not save: ${error.message}`;
+            reminderStatus.textContent = "";
+            reminderStatus.classList.remove("is-error");
+            window.carDemoToast?.("Reminder saved");
+            setTimeout(() => {
+              window.location.href = "reminders-2.html";
+            }, 450);
+          } catch (error) {
+            const message = error?.message || "Unexpected save error.";
+            window.carDemoToast?.(`Could not save: ${message}`, { isError: true });
+            reminderStatus.textContent = `Could not save: ${message}`;
             reminderStatus.classList.add("is-error");
-            return;
+          } finally {
+            setSavingState(false, previousLabel);
           }
-
-          reminderStatus.textContent = "";
-          reminderStatus.classList.remove("is-error");
-          window.carDemoToast?.("Reminder saved");
-          setTimeout(() => {
-            window.location.href = "reminders-2.html";
-          }, 450);
         });
       }
     </script>
