@@ -28,36 +28,36 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const anonKey = Deno.env.get("CAR_DEMO_SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_ANON_KEY");
     const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
     const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
     const vapidSubject = Deno.env.get("VAPID_SUBJECT");
-    if (!supabaseUrl || !serviceRoleKey || !anonKey || !vapidPublicKey || !vapidPrivateKey || !vapidSubject) {
+    if (!supabaseUrl || !serviceRoleKey || !vapidPublicKey || !vapidPrivateKey || !vapidSubject) {
       console.error("Missing env vars", {
         hasSupabaseUrl: Boolean(supabaseUrl),
         hasServiceRoleKey: Boolean(serviceRoleKey),
-        hasAnonKey: Boolean(anonKey),
         hasVapidPublicKey: Boolean(vapidPublicKey),
         hasVapidPrivateKey: Boolean(vapidPrivateKey),
         hasVapidSubject: Boolean(vapidSubject),
       });
       return json(500, {
         error:
-          "Missing required env vars. Need SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, CAR_DEMO_SUPABASE_ANON_KEY (or SUPABASE_ANON_KEY), VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.",
+          "Missing required env vars. Need SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.",
       });
     }
     webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
 
     const authHeader = req.headers.get("Authorization") || "";
-    const userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+    if (!token) {
+      console.error("Missing bearer token");
+      return json(401, { error: "Unauthorized." });
+    }
 
     const {
       data: { user },
       error: userError,
-    } = await userClient.auth.getUser();
+    } = await adminClient.auth.getUser(token);
     if (userError || !user) {
       console.error("Auth getUser failed", { userError: userError?.message || null });
       return json(401, { error: "Unauthorized." });
