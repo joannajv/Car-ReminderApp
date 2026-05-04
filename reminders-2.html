@@ -43,27 +43,40 @@
         dot.addEventListener("click", async (event) => {
           event.stopPropagation();
           const isComplete = dot.getAttribute("aria-pressed") === "true";
-          const next = !isComplete;
-          dot.setAttribute("aria-pressed", String(next));
-          dot.classList.toggle("is-complete", next);
+          if (isComplete) return;
+          dot.setAttribute("aria-pressed", "true");
+          dot.classList.add("is-complete");
 
           try {
             if (!window.carDemoSupabase) return;
-            const { error } = await window.carDemoSupabase
+            const { error: insertError } = await window.carDemoSupabase.from("services_done").insert({
+              user_id: entry.user_id,
+              text: entry.text,
+              date_text: entry.date_text,
+              time_text: entry.time_text,
+              completed: true,
+            });
+            if (insertError) throw insertError;
+
+            const { error: deleteError } = await window.carDemoSupabase
               .from("reminders")
-              .update({ completed: next })
+              .delete()
               .eq("id", entry.id)
               .eq("user_id", entry.user_id);
+            if (deleteError) throw deleteError;
 
-            if (error) {
-              dot.setAttribute("aria-pressed", String(isComplete));
-              dot.classList.toggle("is-complete", isComplete);
-              window.carDemoToast?.(`Could not update: ${error.message}`, { isError: true, durationMs: 2200 });
+            const row = dot.closest(".fig-reminder-row");
+            if (row) row.remove();
+            if (!remindersList.children.length) {
+              remindersEmptyState.style.display = "block";
             }
           } catch (e) {
-            dot.setAttribute("aria-pressed", String(isComplete));
-            dot.classList.toggle("is-complete", isComplete);
-            window.carDemoToast?.("Could not update completed state.", { isError: true, durationMs: 2200 });
+            dot.setAttribute("aria-pressed", "false");
+            dot.classList.remove("is-complete");
+            window.carDemoToast?.(`Could not move reminder: ${e?.message || "unknown error"}`, {
+              isError: true,
+              durationMs: 2200,
+            });
           }
         });
 

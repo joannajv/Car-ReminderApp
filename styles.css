@@ -42,12 +42,23 @@ body {
 
 /* On phones, scale so the full frame fits the dynamic viewport; width-only scale
    clips the bottom (e.g. Services Done) when 932×scale exceeds the screen. */
-@media (max-width: 900px) and (pointer: coarse) {
+@media (max-width: 900px) {
   :root {
-    --app-scale: min(
-      calc(100vw / var(--screen-width)),
-      calc(100dvh / var(--screen-height))
-    );
+    --app-scale: 1;
+  }
+
+  body {
+    display: block;
+    overflow: hidden;
+    background: #d0d0d0;
+  }
+
+  .screen {
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    transform: none;
+    transform-origin: top left;
   }
 }
 

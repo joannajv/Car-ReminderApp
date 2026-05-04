@@ -48,35 +48,48 @@
         row.className = "fig-service-pill fig-reminder-row";
 
         const dot = document.createElement("button");
-        dot.className = "fig-service-dot fig-service-dot-btn";
+        dot.className = "fig-service-dot fig-service-dot-btn is-complete";
         dot.type = "button";
-        dot.setAttribute("aria-label", `Mark ${entry.text} as completed`);
-        dot.setAttribute("aria-pressed", String(Boolean(entry.completed)));
-        dot.classList.toggle("is-complete", Boolean(entry.completed));
+        dot.setAttribute("aria-label", `Move ${entry.text} back to reminders`);
+        dot.setAttribute("aria-pressed", "true");
         dot.addEventListener("click", async (event) => {
           event.stopPropagation();
-          const isComplete = dot.getAttribute("aria-pressed") === "true";
-          const next = !isComplete;
-          dot.setAttribute("aria-pressed", String(next));
-          dot.classList.toggle("is-complete", next);
+          const originalPressed = dot.getAttribute("aria-pressed") === "true";
+          if (!originalPressed) return;
+          dot.setAttribute("aria-pressed", "false");
+          dot.classList.remove("is-complete");
 
           try {
             if (!window.carDemoSupabase) return;
-            const { error } = await window.carDemoSupabase
+            const { error: reminderInsertError } = await window.carDemoSupabase.from("reminders").insert({
+              user_id: entry.user_id,
+              text: entry.text,
+              date_text: entry.date_text,
+              time_text: entry.time_text,
+              completed: false,
+              notify_at: null,
+              notified_at: null,
+            });
+            if (reminderInsertError) throw reminderInsertError;
+
+            const { error: serviceDeleteError } = await window.carDemoSupabase
               .from("services_done")
-              .update({ completed: next })
+              .delete()
               .eq("id", entry.id)
               .eq("user_id", entry.user_id);
+            if (serviceDeleteError) throw serviceDeleteError;
 
-            if (error) {
-              dot.setAttribute("aria-pressed", String(isComplete));
-              dot.classList.toggle("is-complete", isComplete);
-              window.carDemoToast?.(`Could not update: ${error.message}`, { isError: true, durationMs: 2200 });
-            }
+            const rowEl = dot.closest(".fig-reminder-row");
+            if (rowEl) rowEl.remove();
+            if (!servicesRecentList.children.length) servicesRecentEmpty.style.display = "block";
+            if (!servicesPastList.children.length) servicesPastEmpty.style.display = "block";
           } catch (e) {
-            dot.setAttribute("aria-pressed", String(isComplete));
-            dot.classList.toggle("is-complete", isComplete);
-            window.carDemoToast?.("Could not update completed state.", { isError: true, durationMs: 2200 });
+            dot.setAttribute("aria-pressed", "true");
+            dot.classList.add("is-complete");
+            window.carDemoToast?.(`Could not move service: ${e?.message || "unknown error"}`, {
+              isError: true,
+              durationMs: 2200,
+            });
           }
         });
 
@@ -147,8 +160,18 @@
           return;
         }
 
-        const recentItems = data.slice(0, 3);
-        const pastItems = data.slice(3);
+        const nowMs = Date.now();
+        const cutoffMs = 24 * 60 * 60 * 1000;
+        const recentItems = data.filter((entry) => {
+          const createdMs = new Date(entry.created_at).getTime();
+          if (!Number.isFinite(createdMs)) return false;
+          return nowMs - createdMs < cutoffMs;
+        });
+        const pastItems = data.filter((entry) => {
+          const createdMs = new Date(entry.created_at).getTime();
+          if (!Number.isFinite(createdMs)) return true;
+          return nowMs - createdMs >= cutoffMs;
+        });
         renderSection(servicesRecentList, servicesRecentEmpty, recentItems);
         renderSection(servicesPastList, servicesPastEmpty, pastItems);
 
