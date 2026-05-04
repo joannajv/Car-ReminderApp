@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car App - Fuses</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="screen maintenance-opened-screen redesigned-screen">
+      <a class="top-icon-button opened-back" href="page3.html" aria-label="Back">
+        <img src="assets/arrow.png?v=20260428" alt="" />
+      </a>
+      <a class="top-icon-button settings-top-button opened-settings" href="index.html" aria-label="Home">
+        <img src="assets/house.png?v=20260428" alt="" />
+      </a>
+
+      <div class="opened-category-header">
+        <img class="opened-category-icon" src="assets/fuse.png?v=20260504" alt="" />
+        <h1 class="opened-category-title">Fuses</h1>
+      </div>
+
+      <section class="opened-rows" aria-label="Fuses subcategories">
+        <a class="opened-row" href="maintenance-button.html"><span>Fuse box</span></a>
+        <div class="opened-row"><span>Blade fuses</span></div>
+        <div class="opened-row"><span>Relays</span></div>
+        <div class="opened-row"></div>
+        <div class="opened-row"></div>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="auth-guard.js"></script>
+    <script src="page-transitions.js"></script>
+  </body>
+</html>
