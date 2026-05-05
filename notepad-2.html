@@ -7,13 +7,17 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="screen fig-sheet-screen redesigned-screen">
+    <main class="screen fig-sheet-screen redesigned-screen notepad-2-screen">
+      <a class="top-icon-button notepad-2-back" href="index.html" aria-label="Back">
+        <img src="assets/arrow.png?v=20260428" alt="" />
+      </a>
       <section class="fig-sheet fig-sheet--recent fig-sheet--dynamic-reminders">
         <div class="fig-sheet-head">
           <h1>Recent</h1>
           <div class="fig-sheet-head-actions">
-            <a class="fig-sheet-mini-plus" href="notepad.html" aria-label="Add service">+</a>
-            <a class="fig-sheet-close" href="index.html" aria-label="Close">×</a>
+            <a class="fig-sheet-mini-plus" href="notepad.html" aria-label="Add service">
+              <img src="assets/plus.png?v=20260504" alt="" width="26" height="26" />
+            </a>
           </div>
         </div>
         <p id="servicesLoading" class="fig-loading">Loading services...</p>
@@ -25,8 +29,9 @@
         <div class="fig-sheet-head">
           <h1>Past</h1>
           <div class="fig-sheet-head-actions">
-            <a class="fig-sheet-mini-plus" href="notepad.html" aria-label="Add service">+</a>
-            <a class="fig-sheet-close" href="index.html" aria-label="Close">×</a>
+            <a class="fig-sheet-mini-plus" href="notepad.html" aria-label="Add service">
+              <img src="assets/plus.png?v=20260504" alt="" width="26" height="26" />
+            </a>
           </div>
         </div>
         <div id="servicesPastList" class="fig-reminders-list"></div>

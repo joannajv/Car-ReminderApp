@@ -7,11 +7,16 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="screen fig-sheet-screen redesigned-screen">
+    <main class="screen fig-sheet-screen redesigned-screen notepad-2-screen">
+      <a class="top-icon-button notepad-2-back" href="index.html" aria-label="Back">
+        <img src="assets/arrow.png?v=20260428" alt="" />
+      </a>
       <section class="fig-sheet fig-sheet--single fig-sheet--notepad">
         <div class="fig-sheet-head">
           <h1>Services Done</h1>
-          <a class="fig-sheet-close" href="index.html" aria-label="Close">×</a>
+          <a class="fig-sheet-close" href="index.html" aria-label="Close">
+            <img src="assets/exout.png?v=20260504" alt="" width="22" height="22" />
+          </a>
         </div>
 
         <div class="fig-service-pill fig-service-pill--top">
@@ -74,13 +79,17 @@
       const syncServiceDayOptions = () => {
         if (!serviceMonthInput || !serviceDayInput || !serviceYearInput) return;
         const month = Number(serviceMonthInput.value);
-        const year = Number(serviceYearInput.value);
-        if (!month || !year) {
+        if (!month) {
           serviceDayInput.innerHTML = "";
           addPlaceholderOption(serviceDayInput, "DD");
           return;
         }
-        const maxDays = new Date(year, month, 0).getDate();
+        const selectedYear = Number(serviceYearInput.value);
+        const yearForMaxDays =
+          Number.isInteger(selectedYear) && selectedYear > 0
+            ? selectedYear
+            : new Date().getFullYear();
+        const maxDays = new Date(yearForMaxDays, month, 0).getDate();
         const previousDay = Number(serviceDayInput.value || 0);
         makeOptions(serviceDayInput, 1, maxDays, true, "DD");
         if (previousDay >= 1 && previousDay <= maxDays) {

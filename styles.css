@@ -1623,6 +1623,151 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   height: 26px;
 }
 
+.video-screen .video-hamburger-btn {
+  position: absolute;
+  right: 15px;
+  top: 24px;
+  z-index: 5;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: #374957;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-screen .video-hamburger-btn .home-menu-hamburger {
+  width: 20px;
+  gap: 4px;
+}
+
+.video-screen .video-hamburger-btn .home-menu-hamburger span {
+  height: 2px;
+  border-radius: 2px;
+}
+
+body.video-filter-open {
+  overflow: hidden;
+}
+
+.video-topic-filter {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.video-topic-filter.is-open {
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+}
+
+.video-topic-filter__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.video-topic-filter__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 92vw);
+  max-width: 100%;
+  background: #f0f0f0;
+  box-shadow: -6px 0 24px rgba(0, 0, 0, 0.18);
+  padding: 18px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.video-topic-filter__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.video-topic-filter__head h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #374957;
+  line-height: 1.25;
+}
+
+.video-topic-filter__close {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: #d0d0d3;
+  color: #374957;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.video-topic-filter__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.video-topic-filter__option {
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  color: #374957;
+  font-family: "Cabin", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.video-topic-filter__option.is-active {
+  background: #374957;
+  color: #fff;
+}
+
+.video-topic-filter__settings {
+  margin-top: auto;
+  padding-top: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374957;
+}
+
+.video-filter-hint {
+  margin: 0 57px 8px;
+  min-height: 1.2em;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374957;
+}
+
 /* Figma-locked reminder/notepad sheets */
 .fig-sheet-screen {
   background: #d0d0d0;
@@ -1642,6 +1787,41 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
 .fig-sheet--single {
   top: 34px;
   height: 418px;
+}
+
+/* Reminders-2 / Notepad-2: back arrow above sheets (Figma), no close (×) */
+.reminders-2-screen .reminders-2-back,
+.notepad-2-screen .notepad-2-back {
+  left: 36px;
+  top: 22px;
+  z-index: 5;
+}
+
+.reminders-2-screen .reminders-2-back img,
+.notepad-2-screen .notepad-2-back img {
+  width: 32px;
+  height: 32px;
+}
+
+.reminders-2-screen .fig-sheet--reminders-2 {
+  top: 101px;
+}
+
+/* Offset both Recent and Past by +67px so the gap between panels matches the pre-arrow layout */
+.notepad-2-screen .fig-sheet--recent {
+  top: 101px;
+}
+
+.notepad-2-screen .fig-sheet--past {
+  top: 387px;
+  /* Keep bottom inside the 932px artboard (387 + 578 > 932); list scrolls inside the sheet */
+  height: auto;
+  max-height: min(578px, calc(var(--screen-height) - 387px - 16px));
+}
+
+/* Services Done form (notepad.html): sheet below top back arrow, same as Notepad-2 */
+.notepad-2-screen .fig-sheet--single.fig-sheet--notepad {
+  top: 101px;
 }
 
 .fig-sheet--notepad {
@@ -1687,9 +1867,13 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   justify-content: center;
   text-decoration: none;
   color: #374957;
-  font-size: 28px;
-  line-height: 1;
-  font-weight: 500;
+}
+
+.fig-sheet-close img {
+  width: 22px;
+  height: 22px;
+  display: block;
+  object-fit: contain;
 }
 
 .fig-service-pill {
@@ -2309,7 +2493,11 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   justify-content: center;
   text-decoration: none;
   color: #374957;
-  font-size: 28px;
-  font-weight: 500;
-  line-height: 1;
+}
+
+.fig-sheet-mini-plus img {
+  width: 26px;
+  height: 26px;
+  display: block;
+  object-fit: contain;
 }

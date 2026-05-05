@@ -11,13 +11,46 @@
       <a class="top-icon-button button-back" href="index.html" aria-label="Back">
         <img src="assets/arrow.png?v=20260428" alt="" />
       </a>
+      <button class="video-hamburger-btn" type="button" aria-label="Open topic filter" aria-expanded="false" aria-controls="videoTopicFilter">
+        <span class="home-menu-hamburger" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+
+      <div id="videoTopicFilter" class="video-topic-filter" aria-hidden="true">
+        <button type="button" class="video-topic-filter__backdrop" tabindex="-1" aria-label="Close filter menu"></button>
+        <div class="video-topic-filter__panel" role="dialog" aria-modal="true" aria-labelledby="videoTopicFilterTitle">
+          <div class="video-topic-filter__head">
+            <h2 id="videoTopicFilterTitle">Filter by topic</h2>
+            <button type="button" class="video-topic-filter__close" aria-label="Close">×</button>
+          </div>
+          <nav class="video-topic-filter__nav" aria-label="Maintenance categories from Parts menu">
+            <!-- Options injected / listed — matches page3.html tiles -->
+            <button type="button" class="video-topic-filter__option is-active" data-category="all">All videos</button>
+            <button type="button" class="video-topic-filter__option" data-category="oil">Oil, Fluids, and Chemicals</button>
+            <button type="button" class="video-topic-filter__option" data-category="brakes">Brakes</button>
+            <button type="button" class="video-topic-filter__option" data-category="lights">Lights</button>
+            <button type="button" class="video-topic-filter__option" data-category="tire">Tire</button>
+            <button type="button" class="video-topic-filter__option" data-category="batteries">Batteries</button>
+            <button type="button" class="video-topic-filter__option" data-category="windshield">Windshield</button>
+            <button type="button" class="video-topic-filter__option" data-category="filter">Filter</button>
+            <button type="button" class="video-topic-filter__option" data-category="fuses">Fuses</button>
+          </nav>
+          <a class="video-topic-filter__settings" href="settings.html">Profile settings</a>
+        </div>
+      </div>
+
       <div class="video-search-wrap">
         <label class="video-search-label" for="videoSearchInput">Search</label>
         <input id="videoSearchInput" class="video-search-input" type="search" placeholder="Search" autocomplete="off" />
       </div>
 
+      <p id="videoFilterHint" class="video-filter-hint" aria-live="polite"></p>
+
       <section class="video-list" aria-label="Video tutorials">
-        <article class="video-card" data-title="How to Change Your Oil Step by Step oil filter maintenance">
+        <article class="video-card" data-categories="oil" data-title="How to Change Your Oil Step by Step oil filter maintenance">
           <iframe
             src="https://www.youtube.com/embed/O1hF25Cowv8"
             title="How to Change Your Oil Step by Step"
@@ -28,7 +61,7 @@
           <p>How to Change Your Oil (Step-by-Step)</p>
         </article>
 
-        <article class="video-card" data-title="How to Replace Windshield Wipers wiper blades beginner">
+        <article class="video-card" data-categories="windshield" data-title="How to Replace Windshield Wipers wiper blades beginner">
           <iframe
             src="https://www.youtube.com/embed/uMyzYI26zTM"
             title="How to Replace Windshield Wipers"
@@ -39,7 +72,7 @@
           <p>How to Replace Windshield Wipers</p>
         </article>
 
-        <article class="video-card" data-title="How to Replace a Tail Light Bulb tail light beginner repair">
+        <article class="video-card" data-categories="lights" data-title="How to Replace a Tail Light Bulb tail light beginner repair">
           <iframe
             src="https://www.youtube.com/embed/KN-BX-33nXk"
             title="How to Replace a Tail Light Bulb"
@@ -50,7 +83,7 @@
           <p>How to Replace a Tail Light Bulb</p>
         </article>
 
-        <article class="video-card" data-title="How to Replace a Headlight Bulb headlight bulb easy fix">
+        <article class="video-card" data-categories="lights" data-title="How to Replace a Headlight Bulb headlight bulb easy fix">
           <iframe
             src="https://www.youtube.com/embed/HO3IXM3XkUU"
             title="How to Replace a Headlight Bulb"
@@ -61,7 +94,7 @@
           <p>How to Replace a Headlight Bulb</p>
         </article>
 
-        <article class="video-card" data-title="How to Change a Car Battery battery replacement diy">
+        <article class="video-card" data-categories="batteries" data-title="How to Change a Car Battery battery replacement diy">
           <iframe
             src="https://www.youtube.com/embed/6AbWM9QD0nM"
             title="How to Change a Car Battery"
@@ -72,7 +105,7 @@
           <p>How to Replace a Car Battery</p>
         </article>
 
-        <article class="video-card" data-title="How to Change Engine Air Filter cabin air filter filters at home">
+        <article class="video-card" data-categories="filter" data-title="How to Change Engine Air Filter cabin air filter filters at home">
           <iframe
             src="https://www.youtube.com/embed/zLg96Q6byvg"
             title="How to Change Engine and Cabin Air Filters"
@@ -83,7 +116,7 @@
           <p>How to Change Engine and Cabin Air Filters</p>
         </article>
 
-        <article class="video-card" data-title="How to Jump Start a Car emergency battery cables">
+        <article class="video-card" data-categories="batteries" data-title="How to Jump Start a Car emergency battery cables">
           <iframe
             src="https://www.youtube.com/embed/VdnkRQF5Cps"
             title="How to Jump Start a Car"
@@ -92,6 +125,39 @@
             allowfullscreen
           ></iframe>
           <p>How to Jump Start a Car</p>
+        </article>
+
+        <article class="video-card" data-categories="brakes" data-title="How to Replace Brake Pads and Rotors brakes diy">
+          <iframe
+            src="https://www.youtube.com/embed/6RQ9UabOIPg"
+            title="How to Replace Brake Pads and Rotors"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Replace Brake Pads and Rotors</p>
+        </article>
+
+        <article class="video-card" data-categories="tire" data-title="How to Rotate Your Tires tire rotation wheels">
+          <iframe
+            src="https://www.youtube.com/embed/8ZRB3Mpt6MY"
+            title="How to Rotate Your Tires"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Rotate Your Tires</p>
+        </article>
+
+        <article class="video-card" data-categories="fuses" data-title="How to Find and Replace a Blown Fuse automotive electrical">
+          <iframe
+            src="https://www.youtube.com/embed/3uf1iVQVI6U"
+            title="How to Find and Replace a Blown Fuse"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <p>How to Find and Replace a Blown Fuse</p>
         </article>
       </section>
     </main>
@@ -103,15 +169,108 @@
     <script>
       const videoSearchInput = document.getElementById("videoSearchInput");
       const videoCards = Array.from(document.querySelectorAll(".video-card"));
+      const videoTopicFilter = document.getElementById("videoTopicFilter");
+      const hamburgerBtn = document.querySelector(".video-hamburger-btn");
+      const filterBackdrop = videoTopicFilter?.querySelector(".video-topic-filter__backdrop");
+      const filterCloseBtn = videoTopicFilter?.querySelector(".video-topic-filter__close");
+      const filterOptions = Array.from(videoTopicFilter?.querySelectorAll(".video-topic-filter__option") || []);
+      const filterHint = document.getElementById("videoFilterHint");
 
-      videoSearchInput?.addEventListener("input", () => {
-        const query = videoSearchInput.value.trim().toLowerCase();
+      let activeCategory = "all";
+
+      const categoryLabels = {
+        all: "All videos",
+        oil: "Oil, Fluids, and Chemicals",
+        brakes: "Brakes",
+        lights: "Lights",
+        tire: "Tire",
+        batteries: "Batteries",
+        windshield: "Windshield",
+        filter: "Filter",
+        fuses: "Fuses",
+      };
+
+      const applyVideoFilters = () => {
+        const query = videoSearchInput?.value.trim().toLowerCase() || "";
 
         videoCards.forEach((card) => {
           const title = (card.dataset.title || "").toLowerCase();
-          card.hidden = query ? !title.includes(query) : false;
+          const titleOk = !query || title.includes(query);
+
+          let catOk = true;
+          if (activeCategory && activeCategory !== "all") {
+            const cats = (card.dataset.categories || "")
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean);
+            catOk = cats.includes(activeCategory);
+          }
+
+          card.hidden = !(titleOk && catOk);
+        });
+
+        if (filterHint) {
+          const label = categoryLabels[activeCategory] || "All videos";
+          filterHint.textContent =
+            activeCategory === "all"
+              ? ""
+              : `Showing: ${label}`;
+        }
+      };
+
+      videoSearchInput?.addEventListener("input", applyVideoFilters);
+
+      const setFilterActiveClass = () => {
+        filterOptions.forEach((btn) => {
+          btn.classList.toggle("is-active", btn.dataset.category === activeCategory);
+        });
+      };
+
+      const openTopicFilter = () => {
+        if (!videoTopicFilter || !hamburgerBtn) return;
+        videoTopicFilter.classList.add("is-open");
+        videoTopicFilter.setAttribute("aria-hidden", "false");
+        hamburgerBtn.setAttribute("aria-expanded", "true");
+        document.body.classList.add("video-filter-open");
+        filterCloseBtn?.focus();
+      };
+
+      const closeTopicFilter = () => {
+        if (!videoTopicFilter || !hamburgerBtn) return;
+        videoTopicFilter.classList.remove("is-open");
+        videoTopicFilter.setAttribute("aria-hidden", "true");
+        hamburgerBtn.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("video-filter-open");
+        hamburgerBtn.focus();
+      };
+
+      hamburgerBtn?.addEventListener("click", () => {
+        if (videoTopicFilter?.classList.contains("is-open")) closeTopicFilter();
+        else openTopicFilter();
+      });
+
+      filterBackdrop?.addEventListener("click", closeTopicFilter);
+      filterCloseBtn?.addEventListener("click", closeTopicFilter);
+
+      filterOptions.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const next = btn.dataset.category || "all";
+          activeCategory = next;
+          setFilterActiveClass();
+          applyVideoFilters();
+          closeTopicFilter();
         });
       });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && videoTopicFilter?.classList.contains("is-open")) {
+          e.preventDefault();
+          closeTopicFilter();
+        }
+      });
+
+      setFilterActiveClass();
+      applyVideoFilters();
     </script>
   </body>
 </html>

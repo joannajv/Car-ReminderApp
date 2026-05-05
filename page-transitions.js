@@ -86,6 +86,9 @@
       const a = e.target.closest("a");
       if (!isInternalLink(a)) return;
 
+      // Async actions (e.g. Save on notepad/reminders) call preventDefault() first; don't hijack navigation.
+      if (e.defaultPrevented) return;
+
       e.preventDefault();
       navigate(a, getDirection(a));
     });
