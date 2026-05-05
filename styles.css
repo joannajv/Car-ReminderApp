@@ -2310,7 +2310,12 @@ body.video-filter-open {
 }
 
 .auth-brand--create {
-  top: 188px;
+  top: 92px;
+}
+
+.auth-brand--create .auth-brand-icon {
+  width: 92px;
+  height: 92px;
 }
 
 .auth-brand-icon {
@@ -2321,6 +2326,7 @@ body.video-filter-open {
   margin: 0 auto;
 }
 
+
 .auth-brand h1 {
   margin: 16px 0 0;
   font-size: 24px;
@@ -2330,7 +2336,7 @@ body.video-filter-open {
 }
 
 .auth-brand--create h1 {
-  margin-top: 0;
+  margin-top: 10px;
   font-size: 20px;
 }
 

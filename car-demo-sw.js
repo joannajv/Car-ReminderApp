@@ -20,8 +20,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "Car Reminder";
   const options = {
     body: payload.body || "You have a due reminder.",
-    icon: payload.icon || "assets/blob.png",
-    badge: payload.badge || "assets/blob.png",
+    icon: payload.icon || "assets/caricon.png",
+    badge: payload.badge || "assets/caricon.png",
     data: {
       url: payload.url || "/index.html",
     },
