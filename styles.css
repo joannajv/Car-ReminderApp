@@ -7,6 +7,11 @@
   --surface: #d9d9d9;
   --icon: #3c5264;
   --app-scale: min(calc(100vw / var(--screen-width)), calc(100vh / var(--screen-height)));
+  /* Touch / motion tuned like iOS system UI (coarse pointer only) */
+  --ios-ease-out: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ios-ease-snap: cubic-bezier(0.33, 1, 0.68, 1);
+  --ios-press-duration: 0.22s;
+  --ios-hit-min: 44px;
 }
 
 *,
@@ -62,7 +67,66 @@ body {
   }
 }
 
+/* ----- iOS-class interactions: real taps only, no page-load motion ----- */
+@media (hover: none) and (pointer: coarse) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .screen :where(a[href], button, .reminder-dot, .auth-primary-btn, .settings-action-btn) {
+    touch-action: manipulation;
+  }
+
+  .screen :where(
+      a[href]:not([href^="#"]),
+      button:not(:disabled),
+      .reminder-dot,
+      .auth-primary-btn,
+      .settings-action-btn,
+      .top-icon-button,
+      .home-menu-link
+    ) {
+    transition:
+      filter var(--ios-press-duration) var(--ios-ease-out),
+      transform var(--ios-press-duration) var(--ios-ease-snap);
+  }
+
+  .screen :where(a[href]:not([href^="#"]), button:not(:disabled), .reminder-dot):active {
+    filter: brightness(0.9);
+  }
+
+  .screen :where(.top-icon-button, .home-menu-link):active {
+    filter: none;
+    transform: scale(0.94);
+  }
+
+  .screen :where(.auth-primary-btn, .settings-action-btn):active {
+    filter: brightness(0.94);
+    transform: scale(0.98);
+  }
+
+  .screen .top-icon-button {
+    min-width: var(--ios-hit-min);
+    min-height: var(--ios-hit-min);
+  }
+
+  .screen .home-menu-link {
+    min-width: var(--ios-hit-min);
+    min-height: var(--ios-hit-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.screen :where(a, button, .reminder-dot):focus-visible {
+  outline: 2px solid rgba(10, 132, 255, 0.95);
+  outline-offset: 3px;
+}
 
 .homepage .mustang {
   position: absolute;
@@ -96,6 +160,7 @@ body {
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .card-slider::-webkit-scrollbar {
@@ -368,6 +433,7 @@ body {
   bottom: 120px;
   overflow-y: auto;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Figma sync overrides */
@@ -1491,56 +1557,6 @@ body {
   text-align: center;
 }
 
-body.page-exiting .screen-motion-layer {
-  filter: brightness(0.995);
-}
-
-.screen-motion-layer {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform: translateX(0);
-  opacity: 1;
-
-  /* subtle, feed-like transition */
-  transition: transform 240ms ease-out, opacity 240ms ease-out;
-
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-/* EXIT (going forward) */
-body.page-exit-forward .screen-motion-layer {
-  transform: translateX(-12px);
-  opacity: 0.985;
-}
-
-/* EXIT (going back) */
-body.page-exit-back .screen-motion-layer {
-  transform: translateX(12px);
-  opacity: 0.985;
-}
-
-/* ENTER (forward) */
-body.page-enter-forward .screen-motion-layer {
-  transform: translateX(12px);
-  opacity: 0.985;
-}
-
-/* ENTER (back) */
-body.page-enter-back .screen-motion-layer {
-  transform: translateX(-12px);
-  opacity: 0.985;
-}
-
-/* settle into place */
-body.page-enter-forward.page-enter-active .screen-motion-layer,
-body.page-enter-back.page-enter-active .screen-motion-layer {
-  transform: translateX(0);
-  opacity: 1;
-}
-
 .notes-screen {
   background: #d0d0d0;
   color: #374957;
@@ -1675,6 +1691,7 @@ body.page-enter-back.page-enter-active .screen-motion-layer {
   background: #d0d0d0;
   overflow-y: auto;
   color: #000;
+  -webkit-overflow-scrolling: touch;
 }
 
 .video-search-wrap {
@@ -1825,6 +1842,7 @@ body.video-filter-open {
   flex-direction: column;
   gap: 12px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .video-topic-filter__head {
@@ -1963,6 +1981,7 @@ body.video-filter-open {
   min-height: 220px;
   max-height: 770px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .fig-sheet--recent {
