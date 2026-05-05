@@ -1292,6 +1292,136 @@ body {
   min-width: 0;
 }
 
+/* Product pay block — matches Figma frame "product" (112:74); category title is separate app chrome */
+.maintenance-opened-screen .opened-product-feature {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 179px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+}
+
+.maintenance-opened-screen .opened-product-cards {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.maintenance-opened-screen .opened-product-card {
+  width: 169px;
+  height: 223px;
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+.maintenance-opened-screen .opened-product-card:has(> img) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  overflow: hidden;
+}
+
+.maintenance-opened-screen .opened-product-card > img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.maintenance-opened-screen .opened-product-card--smaller-media > img {
+  max-width: 72%;
+  max-height: 72%;
+}
+
+.maintenance-opened-screen .opened-product-feature--single-card {
+  align-items: center;
+  text-align: center;
+}
+
+.maintenance-opened-screen .opened-product-feature--single-card .opened-product-cards {
+  width: 100%;
+  justify-content: center;
+}
+
+.maintenance-opened-screen .opened-product-rec {
+  margin: 0 46px 0;
+  width: 307px;
+  max-width: calc(100% - 92px);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+  color: #374957;
+}
+
+.maintenance-opened-screen .opened-product-feature.opened-product-feature--single-card .opened-product-rec {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.maintenance-opened-screen .opened-product-feature .find-mechanic-btn {
+  /* Figma: recommendation block top 426px, button top 501px (75px gap from block start) */
+  margin: 47px 46px 0;
+  width: 358px;
+  max-width: calc(100% - 92px);
+  height: 43px;
+  border-radius: 30px;
+  background: rgba(55, 73, 87, 0.5);
+  box-shadow: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+}
+
+.maintenance-opened-screen .opened-product-feature.opened-product-feature--single-card .find-mechanic-btn {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.maintenance-opened-screen .opened-product-feature .video-link {
+  margin: 70px 0 0 46px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  width: auto;
+  text-align: left;
+}
+
+/* Figma uses fi-rr-angle-small-right; hide play icon from older markup */
+.maintenance-opened-screen .opened-product-feature .video-link.opened-product-video img {
+  display: none;
+}
+
+.maintenance-opened-screen .opened-product-feature .video-link.opened-product-video::before {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  background: no-repeat center / contain
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20fill%3D%22%23374957%22%20d%3D%22M14.83%2011.29%2010.59%207.05%209.17%208.47%2012.71%2012l-3.54%203.53%201.42%201.42%204.24-4.24a.996.996%200%200%200%200-1.42Z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.maintenance-opened-screen .opened-product-feature .video-link span {
+  font-size: 16px;
+  font-weight: 700;
+  color: #374957;
+}
+
+.maintenance-opened-screen .opened-product-feature.opened-product-feature--single-card .video-link {
+  margin: 70px auto 0;
+}
+
 .opened-rows {
   position: absolute;
   left: 40px;
@@ -2158,16 +2288,29 @@ body.video-filter-open {
   color: #374957;
 }
 
+.auth-screen-back {
+  left: 24px;
+  top: 18px;
+  z-index: 5;
+}
+
+.auth-screen-back img {
+  width: 32px;
+  height: 32px;
+  display: block;
+  object-fit: contain;
+}
+
 .auth-brand {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 71px;
+  top: 56px;
   text-align: center;
 }
 
 .auth-brand--create {
-  top: 62px;
+  top: 188px;
 }
 
 .auth-brand-icon {
@@ -2180,14 +2323,15 @@ body.video-filter-open {
 
 .auth-brand h1 {
   margin: 16px 0 0;
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
 }
 
 .auth-brand--create h1 {
-  margin-top: 34px;
+  margin-top: 0;
+  font-size: 20px;
 }
 
 .auth-panel {
@@ -2207,8 +2351,10 @@ body.video-filter-open {
 
 .auth-panel--create {
   top: 230px;
-  min-height: 502px;
-  padding: 66px 28px 20px;
+  height: 502px;
+  box-sizing: border-box;
+  padding: 66px 28px 67px;
+  min-height: 0;
 }
 
 .auth-panel h2 {
@@ -2216,6 +2362,10 @@ body.video-filter-open {
   font-size: 40px;
   font-weight: 700;
   line-height: 1;
+}
+
+.auth-panel--login h2 {
+  font-size: 20px;
 }
 
 .auth-panel .auth-helper {
@@ -2273,37 +2423,14 @@ body.video-filter-open {
   margin-top: 16px;
 }
 
-.auth-section-title {
-  margin: 20px 0 14px;
+/* Must beat `.auth-panel h2 { font-size: 40px }` — same element is both panel h2 + this class */
+.auth-panel h2.auth-section-title {
+  margin: 20px 0 16px;
   font-size: 16px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.auth-car-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 85px);
-  gap: 24px;
-}
-
-.auth-car-input {
-  width: 85px;
-  height: 44px;
-  border: 0;
-  border-radius: 20px;
-  background: #d0d0d0;
+  font-weight: 600;
+  line-height: 1.2;
   color: #374957;
-  font-size: 16px;
-  text-align: center;
-  padding: 0 18px 0 10px;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%23374957' d='M1.4 1.3 6 5.8l4.6-4.5L12 2.7 6 8 0 2.7z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 10px 7px;
+  white-space: nowrap;
 }
 
 .auth-terms {
@@ -2321,6 +2448,24 @@ body.video-filter-open {
   width: 19px;
   height: 19px;
   margin: 0;
+  flex-shrink: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(55, 73, 87, 0.18);
+  cursor: pointer;
+}
+
+.auth-terms input:checked {
+  background: #374957;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.auth-terms input:focus-visible {
+  outline: 2px solid #374957;
+  outline-offset: 2px;
 }
 
 .auth-terms span {

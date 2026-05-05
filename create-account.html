@@ -14,8 +14,10 @@
   </head>
   <body>
     <main class="screen auth-screen redesigned-screen">
+      <a class="top-icon-button auth-screen-back" href="login.html" aria-label="Back">
+        <img src="assets/arrow.png?v=20260428" alt="" />
+      </a>
       <section class="auth-brand auth-brand--create">
-        <img class="auth-brand-icon" src="assets/blob.png?v=20260429" alt="" />
         <h1>Welcome to Car Buddy!</h1>
       </section>
 
@@ -30,9 +32,9 @@
         <input class="auth-field-input auth-field-input--pill auth-field-input--spaced" id="createPassword" type="password" placeholder="Password" />
 
         <h2 class="auth-section-title">What kind of car do you drive?</h2>
-        <div class="auth-car-grid">
+        <div class="settings-car-grid">
           <label class="sr-only" for="createYear">Year</label>
-          <select class="auth-car-input" id="createYear">
+          <select class="settings-car-input" id="createYear">
             <option value="">Year</option>
             <option value="2018">2018</option>
             <option value="2020">2020</option>
@@ -40,7 +42,7 @@
           </select>
 
           <label class="sr-only" for="createMake">Make</label>
-          <select class="auth-car-input" id="createMake">
+          <select class="settings-car-input" id="createMake">
             <option value="">Make</option>
             <option value="Range Rover">Range</option>
             <option value="Porsche">Porsche</option>
@@ -48,7 +50,7 @@
           </select>
 
           <label class="sr-only" for="createModel">Model</label>
-          <select class="auth-car-input" id="createModel">
+          <select class="settings-car-input" id="createModel">
             <option value="">Model</option>
             <option value="Sport">Sport</option>
           </select>
@@ -86,7 +88,7 @@
       const syncCarDropdowns = () => {
         const year = createYear.value;
         const previousMake = createMake.value;
-        const previousModel = createModel.value;
+        const previous = createModel.value;
 
         createMake.innerHTML = '<option value="">Make</option>';
         const yearMatch = carOptions.find((entry) => entry.year === year);
@@ -99,7 +101,10 @@
         if (yearMatch && yearMatch.makeValue === previousMake) {
           createModel.innerHTML += `<option value="${yearMatch.model}">${yearMatch.model}</option>`;
           createMake.value = previousMake;
-          if (previousModel === yearMatch.model) createModel.value = previousModel;
+        }
+
+        if (Array.from(createModel.options).some((option) => option.value === previous)) {
+          createModel.value = previous;
         }
       };
 
