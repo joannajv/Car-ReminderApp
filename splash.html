@@ -22,6 +22,8 @@
         <h1 class="splash-title">Car Buddy</h1>
       </div>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/supabase-config.js"></script>
     <script>
       (function () {
         function loginUrl() {
@@ -30,7 +32,7 @@
         function goLogin() {
           window.location.replace(loginUrl());
         }
-        function run() {
+        function startSplashSequence() {
           var holdMs = 2200;
           var fadeMs = 160;
           var el = document.querySelector(".screen.splash-screen");
@@ -38,6 +40,18 @@
             if (el) el.classList.add("splash-is-leaving");
             window.setTimeout(goLogin, fadeMs);
           }, holdMs);
+        }
+        async function run() {
+          if (window.getCarDemoSession) {
+            try {
+              var session = await window.getCarDemoSession();
+              if (session) {
+                window.location.replace(new URL("/index.html", window.location.origin).href);
+                return;
+              }
+            } catch (e) {}
+          }
+          startSplashSequence();
         }
         if (document.readyState === "loading") {
           document.addEventListener("DOMContentLoaded", run);
