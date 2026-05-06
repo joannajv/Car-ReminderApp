@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#d0d0d0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Car Buddy" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/caricon.png" />
     <title>Car Buddy</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -20,16 +23,27 @@
       </div>
     </main>
     <script>
-      (() => {
-        const holdMs = 2200;
-        const fadeMs = 160;
-        const el = document.querySelector(".screen.splash-screen");
-        setTimeout(() => {
-          if (el) el.classList.add("splash-is-leaving");
-          setTimeout(() => {
-            window.location.replace("login.html");
-          }, fadeMs);
-        }, holdMs);
+      (function () {
+        function loginUrl() {
+          return new URL("login.html", window.location.href).href;
+        }
+        function goLogin() {
+          window.location.replace(loginUrl());
+        }
+        function run() {
+          var holdMs = 2200;
+          var fadeMs = 160;
+          var el = document.querySelector(".screen.splash-screen");
+          window.setTimeout(function () {
+            if (el) el.classList.add("splash-is-leaving");
+            window.setTimeout(goLogin, fadeMs);
+          }, holdMs);
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", run);
+        } else {
+          run();
+        }
       })();
     </script>
   </body>
