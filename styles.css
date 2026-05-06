@@ -73,6 +73,14 @@ body {
     -webkit-overflow-scrolling: touch;
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   }
+
+  /* Settings page has fixed-position action buttons near the bottom; permit slight scroll on short Safari viewports. */
+  .screen.settings-screen {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  }
 }
 
 /* ----- iOS-class interactions: real taps only, no page-load motion ----- */
