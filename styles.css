@@ -65,6 +65,14 @@ body {
     transform: none;
     transform-origin: top left;
   }
+
+  /* Auth pages can extend below short Safari dynamic viewport; allow vertical scroll. */
+  .screen.auth-screen {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  }
 }
 
 /* ----- iOS-class interactions: real taps only, no page-load motion ----- */
