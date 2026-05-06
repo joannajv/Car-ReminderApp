@@ -664,6 +664,86 @@ body {
   color: #374957;
 }
 
+/* Splash screen — same 430×932 frame as the rest of the app (grid + scale on desktop) */
+.screen.splash-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  background: #d0d0d0;
+}
+
+.splash-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px 24px;
+  flex: 1;
+  opacity: 1;
+  transition: opacity 0.16s ease-out;
+}
+
+/* Fade only the content; keep the phone panel opaque so the dark page chrome doesn’t flash through */
+.screen.splash-screen.splash-is-leaving .splash-stack {
+  opacity: 0;
+}
+
+.splash-car-wrap {
+  position: relative;
+  width: 166px;
+  flex-shrink: 0;
+}
+
+.splash-car-wrap .splash-car--open {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Wink: splash2.png flashes on top of splash.png for a beat */
+.splash-car-wrap .splash-car--wink {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  pointer-events: none;
+  animation: splash-wink 2.75s ease-in-out infinite;
+}
+
+@keyframes splash-wink {
+  0%,
+  38%,
+  45%,
+  100% {
+    opacity: 0;
+  }
+  40%,
+  43% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-car-wrap .splash-car--wink {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.splash-title {
+  margin: 0;
+  font-family: "Cabin", Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #374957;
+  text-align: center;
+}
+
 .homepage--scrollable {
   overflow-y: auto;
   overflow-x: hidden;
